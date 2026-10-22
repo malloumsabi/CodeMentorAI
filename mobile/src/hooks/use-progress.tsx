@@ -13,6 +13,7 @@ type ProgressContextValue = {
   progress: Progress;
   isLoaded: boolean;
   completeLesson: (courseId: string, lessonId: string) => void;
+  resetProgress: () => void;
 };
 
 const ProgressContext = createContext<ProgressContextValue | null>(null);
@@ -45,7 +46,18 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const next = { ...progress, [courseId]: completed + 1 };
+    saveProgress({ ...progress, [courseId]: completed + 1 });
+  }
+
+  /** Sets every course to 0, including those with demo progress. */
+  function resetProgress() {
+    if (!isLoaded) {
+      return;
+    }
+    saveProgress(Object.fromEntries(courses.map((course) => [course.id, 0])));
+  }
+
+  function saveProgress(next: Progress) {
     setProgress(next);
     AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(next)).catch((error) =>
       console.warn('Could not save progress', error)
@@ -53,7 +65,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <ProgressContext.Provider value={{ progress, isLoaded, completeLesson }}>
+    <ProgressContext.Provider value={{ progress, isLoaded, completeLesson, resetProgress }}>
       {children}
     </ProgressContext.Provider>
   );
