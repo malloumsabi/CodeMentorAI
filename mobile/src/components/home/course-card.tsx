@@ -1,4 +1,5 @@
-import { StyleSheet, View } from 'react-native';
+import { router } from 'expo-router';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/ui/card';
@@ -17,34 +18,42 @@ export function CourseCard({ course }: CourseCardProps) {
   const isFinished = course.lessonsCompleted === course.lessonsTotal;
 
   return (
-    <Card>
-      <View style={styles.header}>
-        <View style={[styles.badge, { backgroundColor: theme.backgroundSelected }]}>
-          <ThemedText type="smallBold" themeColor="accent" numberOfLines={1}>
-            {course.badge}
-          </ThemedText>
+    <Pressable
+      role="button"
+      accessibilityLabel={`${course.title}, ${course.level}. Ouvrir la leçon : ${course.nextLesson}`}
+      onPress={() =>
+        router.push({ pathname: '/lesson/[courseId]', params: { courseId: course.id } })
+      }
+      style={({ pressed }) => pressed && styles.pressed}>
+      <Card>
+        <View style={styles.header}>
+          <View style={[styles.badge, { backgroundColor: theme.backgroundSelected }]}>
+            <ThemedText type="smallBold" themeColor="accent" numberOfLines={1}>
+              {course.badge}
+            </ThemedText>
+          </View>
+          <View style={styles.titleBlock}>
+            <ThemedText style={styles.title} numberOfLines={2}>
+              {course.title}
+            </ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              {course.level}
+            </ThemedText>
+          </View>
         </View>
-        <View style={styles.titleBlock}>
-          <ThemedText style={styles.title} numberOfLines={2}>
-            {course.title}
-          </ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            {course.level}
-          </ThemedText>
-        </View>
-      </View>
 
-      <ProgressBar
-        progress={progress}
-        color={isFinished ? 'success' : 'primary'}
-        accessibilityLabel={`Progression ${course.title}`}
-      />
-      <ThemedText type="small" themeColor="textSecondary">
-        {course.lessonsCompleted === 0
-          ? `${course.lessonsTotal} leçons · Pas encore commencé`
-          : `${course.lessonsCompleted}/${course.lessonsTotal} leçons`}
-      </ThemedText>
-    </Card>
+        <ProgressBar
+          progress={progress}
+          color={isFinished ? 'success' : 'primary'}
+          accessibilityLabel={`Progression ${course.title}`}
+        />
+        <ThemedText type="small" themeColor="textSecondary">
+          {course.lessonsCompleted === 0
+            ? `${course.lessonsTotal} leçons · Pas encore commencé`
+            : `${course.lessonsCompleted}/${course.lessonsTotal} leçons`}
+        </ThemedText>
+      </Card>
+    </Pressable>
   );
 }
 
@@ -66,5 +75,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: 600,
+  },
+  pressed: {
+    opacity: 0.8,
   },
 });

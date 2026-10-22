@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
 import { CourseCard } from '@/components/home/course-card';
@@ -28,7 +29,13 @@ export default function HomeScreen() {
             progress={getCourseProgress(currentCourse)}
             accessibilityLabel={`Progression ${currentCourse.title}`}
           />
-          <Button title="Continuer ma leçon" style={styles.resumeButton} />
+          <Button
+            title="Continuer ma leçon"
+            style={styles.resumeButton}
+            onPress={() =>
+              router.push({ pathname: '/lesson/[courseId]', params: { courseId: currentCourse.id } })
+            }
+          />
         </Card>
       )}
 
