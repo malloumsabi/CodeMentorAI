@@ -30,6 +30,11 @@ export default function AppTabs() {
         <NativeTabs.Trigger.Label>{t.tabs.mentor}</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="sparkles" md="auto_awesome" />
       </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="profile">
+        <NativeTabs.Trigger.Label>{t.tabs.profile}</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf={{ default: 'person.crop.circle', selected: 'person.crop.circle.fill' }} md="person" />
+      </NativeTabs.Trigger>
     </NativeTabs>
   );
 }

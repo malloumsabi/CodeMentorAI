@@ -24,21 +24,21 @@ export type Course = {
 
 type CourseInfo = Omit<Course, 'title' | 'lessons' | 'lessonsTotal'> & { title: Localized };
 
-/** `lessonsCompleted` values are demo defaults, replaced by the saved progress once the user starts. */
+/** `lessonsCompleted` is where a new student starts (0); the saved progress replaces it. */
 const courseInfos: CourseInfo[] = [
   {
     id: 'python-basics',
     title: { fr: 'Les bases de Python', en: 'Python basics', tr: 'Python temelleri' },
     badge: 'Py',
     level: 'beginner',
-    lessonsCompleted: 2,
+    lessonsCompleted: 0,
   },
   {
     id: 'javascript-essentials',
     title: { fr: 'JavaScript essentiel', en: 'JavaScript essentials', tr: 'Temel JavaScript' },
     badge: 'JS',
     level: 'beginner',
-    lessonsCompleted: 1,
+    lessonsCompleted: 0,
   },
   {
     id: 'html-css',

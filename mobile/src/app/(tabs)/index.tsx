@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/card';
 import { ProgressBar } from '@/components/ui/progress-bar';
 import { Spacing } from '@/constants/theme';
 import { getCourseProgress, getCurrentCourse, getNextLesson } from '@/data/courses';
+import { useProfile } from '@/hooks/use-profile';
 import { useCourses } from '@/hooks/use-progress';
 import { useI18n } from '@/i18n';
 
@@ -17,9 +18,20 @@ export default function HomeScreen() {
   const currentCourse = getCurrentCourse(courses);
   const nextLesson = currentCourse && getNextLesson(currentCourse);
   const { t } = useI18n();
+  const { profile } = useProfile();
 
   return (
-    <Screen eyebrow={t.home.greeting} title={t.home.title}>
+    <Screen eyebrow={profile ? t.home.greeting(profile.name) : undefined} title={t.home.title}>
+      {!currentCourse && (
+        <Card elevated style={styles.resumeCard}>
+          <ThemedText style={styles.resumeTitle}>{t.home.startTitle}</ThemedText>
+          <ThemedText type="small" themeColor="textSecondary">
+            {t.home.startHint}
+          </ThemedText>
+          <Button title={t.home.startButton} style={styles.resumeButton} onPress={() => router.push('/courses')} />
+        </Card>
+      )}
+
       {currentCourse && nextLesson && (
         <Card elevated style={styles.resumeCard}>
           <ThemedText type="smallBold" themeColor="primary">
