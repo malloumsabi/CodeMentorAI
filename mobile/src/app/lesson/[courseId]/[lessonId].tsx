@@ -94,6 +94,17 @@ export default function LessonScreen() {
         )
       )}
 
+      <Button
+        title="Une question ? Demander au mentor"
+        variant="secondary"
+        onPress={() =>
+          router.push({
+            pathname: '/lesson/[courseId]/[lessonId]/mentor',
+            params: { courseId: course.id, lessonId: lesson.id },
+          })
+        }
+      />
+
       <QuizCard quiz={lesson.quiz} onCorrectAnswer={() => setIsQuizSolved(true)} />
 
       {isReview ? (

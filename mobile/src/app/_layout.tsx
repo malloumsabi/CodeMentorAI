@@ -37,6 +37,10 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="course/[courseId]" options={{ headerBackTitle: 'Retour' }} />
           <Stack.Screen name="lesson/[courseId]/[lessonId]" options={{ headerBackTitle: 'Retour' }} />
+          <Stack.Screen
+            name="lesson/[courseId]/[lessonId]/mentor"
+            options={{ presentation: 'modal', headerShown: false }}
+          />
         </Stack>
       </ProgressProvider>
     </ThemeProvider>

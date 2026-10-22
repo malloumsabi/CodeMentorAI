@@ -1,14 +1,16 @@
 import Anthropic from '@anthropic-ai/sdk';
 
+import { courses } from '@/data/courses';
 import {
   MAX_HISTORY_MESSAGES,
   MAX_MESSAGE_LENGTH,
+  type LessonRef,
   type MentorMessage,
   type MentorStreamEvent,
 } from '@/utils/mentor-api';
 
 /**
- * Server-only route: POST /api/mentor with `{ messages: MentorMessage[] }`.
+ * Server-only route: POST /api/mentor with `{ messages: MentorMessage[], lesson?: LessonRef }`.
  * Invalid requests get a JSON `{ error }`; otherwise the reply is streamed as NDJSON `MentorStreamEvent` lines.
  * Reads ANTHROPIC_API_KEY from the server environment (mobile/.env.local in development).
  */
@@ -53,18 +55,56 @@ function parseMessages(body: unknown): MentorMessage[] | null {
   return parsed;
 }
 
+/**
+ * Builds the lesson part of the system prompt from the app's own lesson data.
+ * Returns undefined when no lesson was given, and null when the ids don't match a lesson.
+ */
+function describeLesson(lessonRef: unknown): string | null | undefined {
+  if (lessonRef === undefined || lessonRef === null) {
+    return undefined;
+  }
+  const { courseId, lessonId } = lessonRef as Partial<LessonRef>;
+  const course = courses.find((item) => item.id === courseId);
+  const lesson = course?.lessons.find((item) => item.id === lessonId);
+  if (!course || !lesson) {
+    return null;
+  }
+
+  const content = lesson.blocks
+    .map((block) => (block.type === 'code' ? `\`\`\`\n${block.code}\n\`\`\`` : block.text))
+    .join('\n\n');
+  const { quiz } = lesson;
+  const options = quiz.options.map((option, index) => `${index + 1}. ${option}`).join('\n');
+
+  return `L'élève t'écrit depuis cette leçon de l'application. Appuie-toi dessus pour lui répondre.
+
+Parcours : ${course.title} (${course.level})
+Leçon : ${lesson.title}
+
+${content}
+
+Quiz de la leçon :
+${quiz.question}${quiz.code ? `\n\`\`\`\n${quiz.code}\n\`\`\`` : ''}
+${options}
+Bonne réponse : ${quiz.options[quiz.answerIndex]}. ${quiz.explanation}
+
+La bonne réponse t'est donnée pour que tes indices soient justes. Ne la révèle pas : aide l'élève à la trouver lui-même, sauf s'il te demande explicitement la réponse.`;
+}
+
 export async function POST(request: Request) {
   if (!process.env.ANTHROPIC_API_KEY) {
     return errorResponse('Le serveur n’a pas de clé API (ANTHROPIC_API_KEY manquante dans mobile/.env.local).', 500);
   }
 
-  const messages = parseMessages(await request.json().catch(() => null));
-  if (!messages) {
+  const body: unknown = await request.json().catch(() => null);
+  const messages = parseMessages(body);
+  const lessonContext = describeLesson((body as { lesson?: unknown } | null)?.lesson);
+  if (!messages || lessonContext === null) {
     return errorResponse('Message invalide ou trop long.', 400);
   }
 
   const encoder = new TextEncoder();
-  const body = new ReadableStream<Uint8Array>({
+  const responseBody = new ReadableStream<Uint8Array>({
     async start(controller) {
       const send = (event: MentorStreamEvent) => controller.enqueue(encoder.encode(JSON.stringify(event) + '\n'));
 
@@ -72,7 +112,7 @@ export async function POST(request: Request) {
         const stream = client.beta.messages.stream({
           model: 'claude-opus-5-5',
           max_tokens: 4096,
-          system: SYSTEM_PROMPT,
+          system: lessonContext ? `${SYSTEM_PROMPT}\n\n${lessonContext}` : SYSTEM_PROMPT,
           messages,
           // Tutoring chat: low effort keeps answers fast and cheap.
           output_config: { effort: 'low' },
@@ -104,7 +144,7 @@ export async function POST(request: Request) {
     },
   });
 
-  return new Response(body, {
+  return new Response(responseBody, {
     headers: { 'Content-Type': 'application/x-ndjson; charset=utf-8', 'Cache-Control': 'no-cache' },
   });
 }

@@ -8,6 +8,12 @@ export type MentorMessage = {
   content: string;
 };
 
+/** Identifies a lesson; the server looks up its content itself, so the app never sends lesson text. */
+export type LessonRef = {
+  courseId: string;
+  lessonId: string;
+};
+
 /**
  * The route streams one JSON object per line (NDJSON).
  * `refusal` replaces any text received so far; `done` or `error` ends the stream.
@@ -27,14 +33,18 @@ export const MAX_HISTORY_MESSAGES = 21;
  * Sends the conversation and calls `onText` with the reply so far each time a piece arrives.
  * Resolves with the complete reply; rejects with a user-facing message.
  */
-export async function askMentor(history: MentorMessage[], onText: (replySoFar: string) => void): Promise<string> {
+export async function askMentor(
+  history: MentorMessage[],
+  onText: (replySoFar: string) => void,
+  lesson?: LessonRef
+): Promise<string> {
   let response: Response;
   try {
     // On Android and iOS, the global fetch is expo/fetch, which supports streaming response bodies.
     response = await fetch('/api/mentor', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: history.slice(-MAX_HISTORY_MESSAGES) }),
+      body: JSON.stringify({ messages: history.slice(-MAX_HISTORY_MESSAGES), lesson }),
     });
   } catch {
     throw new Error('Impossible de joindre le serveur. Vérifie ta connexion et que `npx expo start` tourne.');
