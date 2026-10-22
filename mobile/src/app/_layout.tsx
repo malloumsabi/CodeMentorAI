@@ -4,6 +4,7 @@ import { useColorScheme } from 'react-native';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import { Colors } from '@/constants/theme';
+import { ProgressProvider } from '@/hooks/use-progress';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -30,11 +31,13 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={getNavigationTheme(colorScheme)}>
-      <AnimatedSplashOverlay />
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="lesson/[courseId]" options={{ headerBackTitle: 'Retour' }} />
-      </Stack>
+      <ProgressProvider>
+        <AnimatedSplashOverlay />
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="lesson/[courseId]" options={{ headerBackTitle: 'Retour' }} />
+        </Stack>
+      </ProgressProvider>
     </ThemeProvider>
   );
 }

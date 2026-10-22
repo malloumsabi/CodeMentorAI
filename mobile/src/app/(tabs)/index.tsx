@@ -8,10 +8,12 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ProgressBar } from '@/components/ui/progress-bar';
 import { Spacing } from '@/constants/theme';
-import { courses, getCourseProgress, getCurrentCourse } from '@/data/courses';
+import { getCourseProgress, getCurrentCourse } from '@/data/courses';
+import { useCourses } from '@/hooks/use-progress';
 
 export default function HomeScreen() {
-  const currentCourse = getCurrentCourse();
+  const courses = useCourses();
+  const currentCourse = getCurrentCourse(courses);
 
   return (
     <Screen eyebrow="Bonjour 👋" title="Prêt à coder aujourd’hui ?">

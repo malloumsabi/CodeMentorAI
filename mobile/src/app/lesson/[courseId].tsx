@@ -9,15 +9,17 @@ import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui/button';
 import { ProgressBar } from '@/components/ui/progress-bar';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
-import { courses, getCourseProgress } from '@/data/courses';
+import { getCourseProgress } from '@/data/courses';
 import { getLesson } from '@/data/lessons';
+import { useCourses, useProgress } from '@/hooks/use-progress';
 
 export default function LessonScreen() {
   const { courseId } = useLocalSearchParams<{ courseId: string }>();
   const insets = useSafeAreaInsets();
+  const { completeLesson } = useProgress();
   const [isQuizSolved, setIsQuizSolved] = useState(false);
 
-  const course = courses.find((item) => item.id === courseId);
+  const course = useCourses().find((item) => item.id === courseId);
   const lesson = course && getLesson(course.id);
 
   const contentStyle = [styles.content, { paddingBottom: insets.bottom + Spacing.four }];
@@ -31,6 +33,28 @@ export default function LessonScreen() {
         <Button title="Retour" variant="secondary" onPress={() => router.back()} />
       </ScrollView>
     );
+  }
+
+  if (course.lessonsCompleted >= course.lessonsTotal) {
+    return (
+      <ScrollView contentContainerStyle={contentStyle}>
+        <Stack.Screen options={{ title: course.title }} />
+        <ThemedText style={styles.title}>Parcours terminé 🎉</ThemedText>
+        <ThemedText themeColor="textSecondary">
+          Tu as terminé les {course.lessonsTotal} leçons de « {course.title} ». Bravo !
+        </ThemedText>
+        <ProgressBar progress={1} color="success" accessibilityLabel={`Progression ${course.title}`} />
+        <Button title="Retour" variant="secondary" onPress={() => router.back()} />
+      </ScrollView>
+    );
+  }
+
+  function finishLesson() {
+    if (!course) {
+      return;
+    }
+    completeLesson(course.id);
+    router.back();
   }
 
   return (
@@ -63,7 +87,7 @@ export default function LessonScreen() {
       <Button
         title={isQuizSolved ? 'Terminer la leçon' : 'Réponds au quiz pour terminer'}
         disabled={!isQuizSolved}
-        onPress={() => router.back()}
+        onPress={finishLesson}
       />
     </ScrollView>
   );

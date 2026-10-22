@@ -59,7 +59,7 @@ export function getCourseProgress(course: Course) {
 }
 
 /** The course to resume first: the most advanced one that is started but not finished. */
-export function getCurrentCourse(list: Course[] = courses) {
+export function getCurrentCourse(list: Course[]) {
   return list
     .filter((course) => course.lessonsCompleted > 0 && course.lessonsCompleted < course.lessonsTotal)
     .sort((a, b) => getCourseProgress(b) - getCourseProgress(a))[0];

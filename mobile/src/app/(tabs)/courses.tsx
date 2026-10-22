@@ -4,9 +4,11 @@ import { CourseCard } from '@/components/home/course-card';
 import { Screen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
-import { courses, type Course } from '@/data/courses';
+import type { Course } from '@/data/courses';
+import { useCourses } from '@/hooks/use-progress';
 
 export default function CoursesScreen() {
+  const courses = useCourses();
   const started = courses.filter((course) => course.lessonsCompleted > 0);
   const notStarted = courses.filter((course) => course.lessonsCompleted === 0);
 
