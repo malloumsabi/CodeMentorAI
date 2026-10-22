@@ -36,6 +36,8 @@ export default function MentorScreen() {
   const [messages, setMessages] = useState<MentorMessage[]>([]);
   const [draft, setDraft] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  /** The reply being streamed, shown as it arrives; null when no reply is in progress. */
+  const [partialReply, setPartialReply] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function send(text: string) {
@@ -50,14 +52,16 @@ export default function MentorScreen() {
     setError(null);
     setIsLoading(true);
     try {
-      const reply = await askMentor(history);
+      const reply = await askMentor(history, setPartialReply);
       setMessages([...history, { role: 'assistant', content: reply }]);
     } catch (e) {
-      // Drop the unanswered question so the history keeps alternating, and give it back for a retry.
+      // Drop the unanswered question (and any partial reply) so the history keeps alternating,
+      // and give the question back for a retry.
       setMessages(messages);
       setDraft(question);
       setError(e instanceof Error ? e.message : 'Une erreur est survenue.');
     } finally {
+      setPartialReply(null);
       setIsLoading(false);
     }
   }
@@ -93,7 +97,11 @@ export default function MentorScreen() {
               <MessageBubble key={index} message={message} />
             ))}
 
-            {isLoading && (
+            {partialReply ? (
+              <MessageBubble message={{ role: 'assistant', content: partialReply }} />
+            ) : null}
+
+            {isLoading && !partialReply && (
               <View style={styles.thinking} accessibilityLiveRegion="polite">
                 <ActivityIndicator color={theme.primary} />
                 <ThemedText type="small" themeColor="textSecondary">

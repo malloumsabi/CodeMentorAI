@@ -4,10 +4,12 @@ import {
   MAX_HISTORY_MESSAGES,
   MAX_MESSAGE_LENGTH,
   type MentorMessage,
+  type MentorStreamEvent,
 } from '@/utils/mentor-api';
 
 /**
- * Server-only route: POST /api/mentor with `{ messages: MentorMessage[] }`, returns `{ reply }` or `{ error }`.
+ * Server-only route: POST /api/mentor with `{ messages: MentorMessage[] }`.
+ * Invalid requests get a JSON `{ error }`; otherwise the reply is streamed as NDJSON `MentorStreamEvent` lines.
  * Reads ANTHROPIC_API_KEY from the server environment (mobile/.env.local in development).
  */
 
@@ -61,48 +63,69 @@ export async function POST(request: Request) {
     return errorResponse('Message invalide ou trop long.', 400);
   }
 
-  try {
-    const response = await client.beta.messages.create({
-      model: 'claude-opus-5-5',
-      max_tokens: 4096,
-      system: SYSTEM_PROMPT,
-      messages,
-      // Tutoring chat: low effort keeps answers fast and cheap.
-      output_config: { effort: 'low' },
-      // If a safety classifier declines a benign question, retry on Anthropic's recommended fallback model.
-      betas: ['server-side-fallback-2026-07-01'],
-      fallbacks: 'default',
-    });
+  const encoder = new TextEncoder();
+  const body = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      const send = (event: MentorStreamEvent) => controller.enqueue(encoder.encode(JSON.stringify(event) + '\n'));
 
-    if (response.stop_reason === 'refusal') {
-      return Response.json({
-        reply: 'Je ne peux pas répondre à cette demande. Essaie de la reformuler, ou pose-moi une autre question sur le code.',
-      });
-    }
+      try {
+        const stream = client.beta.messages.stream({
+          model: 'claude-opus-5-5',
+          max_tokens: 4096,
+          system: SYSTEM_PROMPT,
+          messages,
+          // Tutoring chat: low effort keeps answers fast and cheap.
+          output_config: { effort: 'low' },
+          // If a safety classifier declines a benign question, retry on Anthropic's recommended fallback model.
+          // A mid-answer fallback continues on the same stream, so the text received so far stays valid.
+          betas: ['server-side-fallback-2026-07-01'],
+          fallbacks: 'default',
+        });
 
-    const text = response.content
-      .flatMap((block) => (block.type === 'text' ? [block.text] : []))
-      .join('\n')
-      .trim();
-    if (!text) {
-      return errorResponse('Le mentor n’a pas renvoyé de réponse. Réessaie.', 502);
-    }
-    const truncated = response.stop_reason === 'max_tokens' ? '\n\n(Réponse coupée car trop longue.)' : '';
-    return Response.json({ reply: text + truncated });
-  } catch (error) {
-    if (error instanceof Anthropic.AuthenticationError || error instanceof Anthropic.PermissionDeniedError) {
-      return errorResponse('Clé API refusée. Vérifie la clé dans mobile/.env.local et le crédit du compte.', 500);
-    }
-    if (error instanceof Anthropic.RateLimitError) {
-      return errorResponse('Trop de questions en peu de temps. Attends un peu avant de réessayer.', 429);
-    }
-    if (error instanceof Anthropic.APIConnectionError) {
-      return errorResponse('Le serveur n’arrive pas à joindre l’API Claude. Vérifie la connexion internet.', 502);
-    }
-    if (error instanceof Anthropic.APIError) {
-      console.error('Claude API error', error.status, error.message);
-      return errorResponse(`Erreur de l’API Claude (${error.status ?? 'inconnue'}). Réessaie plus tard.`, 502);
-    }
-    throw error;
+        for await (const event of stream) {
+          if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+            send({ type: 'text', text: event.delta.text });
+          }
+        }
+
+        const message = await stream.finalMessage();
+        if (message.stop_reason === 'refusal') {
+          // Every model declined: the partial text must not be shown as an answer.
+          send({ type: 'refusal', text: REFUSAL_REPLY });
+        } else if (message.stop_reason === 'max_tokens') {
+          send({ type: 'text', text: '\n\n(Réponse coupée car trop longue.)' });
+        }
+        send({ type: 'done' });
+      } catch (error) {
+        send({ type: 'error', error: describeError(error) });
+      } finally {
+        controller.close();
+      }
+    },
+  });
+
+  return new Response(body, {
+    headers: { 'Content-Type': 'application/x-ndjson; charset=utf-8', 'Cache-Control': 'no-cache' },
+  });
+}
+
+const REFUSAL_REPLY =
+  'Je ne peux pas répondre à cette demande. Essaie de la reformuler, ou pose-moi une autre question sur le code.';
+
+function describeError(error: unknown): string {
+  if (error instanceof Anthropic.AuthenticationError || error instanceof Anthropic.PermissionDeniedError) {
+    return 'Clé API refusée. Vérifie la clé dans mobile/.env.local et le crédit du compte.';
   }
+  if (error instanceof Anthropic.RateLimitError) {
+    return 'Trop de questions en peu de temps. Attends un peu avant de réessayer.';
+  }
+  if (error instanceof Anthropic.APIConnectionError) {
+    return 'Le serveur n’arrive pas à joindre l’API Claude. Vérifie la connexion internet.';
+  }
+  if (error instanceof Anthropic.APIError) {
+    console.error('Claude API error', error.status, error.message);
+    return `Erreur de l’API Claude (${error.status ?? 'inconnue'}). Réessaie plus tard.`;
+  }
+  console.error('Mentor route error', error);
+  return 'Une erreur inattendue est survenue sur le serveur. Réessaie.';
 }
