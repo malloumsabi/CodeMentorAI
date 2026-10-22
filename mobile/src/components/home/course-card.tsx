@@ -20,10 +20,8 @@ export function CourseCard({ course }: CourseCardProps) {
   return (
     <Pressable
       role="button"
-      accessibilityLabel={`${course.title}, ${course.level}. Ouvrir la leçon : ${course.nextLesson}`}
-      onPress={() =>
-        router.push({ pathname: '/lesson/[courseId]', params: { courseId: course.id } })
-      }
+      accessibilityLabel={`${course.title}, ${course.level}. Voir les leçons du parcours`}
+      onPress={() => router.push({ pathname: '/course/[courseId]', params: { courseId: course.id } })}
       style={({ pressed }) => pressed && styles.pressed}>
       <Card>
         <View style={styles.header}>

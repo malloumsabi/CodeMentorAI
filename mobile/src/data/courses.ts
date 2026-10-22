@@ -2,6 +2,8 @@
  * Placeholder data until the app is connected to a backend.
  */
 
+import { lessonsByCourse, type Lesson } from '@/data/lessons';
+
 export type CourseLevel = 'Débutant' | 'Intermédiaire' | 'Avancé';
 
 export type Course = {
@@ -10,52 +12,35 @@ export type Course = {
   /** Short label shown in the course badge, e.g. "Py". */
   badge: string;
   level: CourseLevel;
+  /** Lessons are completed in order: the first `lessonsCompleted` ones are done. */
   lessonsCompleted: number;
+  lessons: Lesson[];
+  /** Always equal to `lessons.length`. */
   lessonsTotal: number;
-  nextLesson: string;
 };
 
-export const courses: Course[] = [
-  {
-    id: 'python-basics',
-    title: 'Les bases de Python',
-    badge: 'Py',
-    level: 'Débutant',
-    lessonsCompleted: 7,
-    lessonsTotal: 20,
-    nextLesson: 'Les boucles for',
-  },
-  {
-    id: 'javascript-essentials',
-    title: 'JavaScript essentiel',
-    badge: 'JS',
-    level: 'Débutant',
-    lessonsCompleted: 2,
-    lessonsTotal: 24,
-    nextLesson: 'Les fonctions',
-  },
-  {
-    id: 'html-css',
-    title: 'HTML & CSS',
-    badge: '</>',
-    level: 'Débutant',
-    lessonsCompleted: 0,
-    lessonsTotal: 15,
-    nextLesson: 'Structure d’une page',
-  },
-  {
-    id: 'algorithms',
-    title: 'Algorithmique',
-    badge: 'Algo',
-    level: 'Intermédiaire',
-    lessonsCompleted: 0,
-    lessonsTotal: 18,
-    nextLesson: 'Complexité et notation O',
-  },
+type CourseInfo = Omit<Course, 'lessons' | 'lessonsTotal'>;
+
+/** `lessonsCompleted` values are demo defaults, replaced by the saved progress once the user starts. */
+const courseInfos: CourseInfo[] = [
+  { id: 'python-basics', title: 'Les bases de Python', badge: 'Py', level: 'Débutant', lessonsCompleted: 2 },
+  { id: 'javascript-essentials', title: 'JavaScript essentiel', badge: 'JS', level: 'Débutant', lessonsCompleted: 1 },
+  { id: 'html-css', title: 'HTML & CSS', badge: '</>', level: 'Débutant', lessonsCompleted: 0 },
+  { id: 'algorithms', title: 'Algorithmique', badge: 'Algo', level: 'Intermédiaire', lessonsCompleted: 0 },
 ];
+
+export const courses: Course[] = courseInfos.map((info) => {
+  const lessons = lessonsByCourse[info.id] ?? [];
+  return { ...info, lessons, lessonsTotal: lessons.length };
+});
 
 export function getCourseProgress(course: Course) {
   return course.lessonsTotal === 0 ? 0 : course.lessonsCompleted / course.lessonsTotal;
+}
+
+/** The next lesson to do, or undefined when the course is finished. */
+export function getNextLesson(course: Course): Lesson | undefined {
+  return course.lessons[course.lessonsCompleted];
 }
 
 /** The course to resume first: the most advanced one that is started but not finished. */

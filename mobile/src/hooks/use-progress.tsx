@@ -3,8 +3,8 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 
 import { courses, type Course } from '@/data/courses';
 
-/** Bump the version suffix if the stored shape changes. */
-const STORAGE_KEY = 'codementor/progress/v1';
+/** Bump the version suffix if the stored shape or meaning changes (v1 counted lessons of the old 15–24 lesson demo courses). */
+const STORAGE_KEY = 'codementor/progress/v2';
 
 /** Number of completed lessons, by course id. Courses without an entry keep their default value. */
 type Progress = Record<string, number>;
@@ -12,7 +12,7 @@ type Progress = Record<string, number>;
 type ProgressContextValue = {
   progress: Progress;
   isLoaded: boolean;
-  completeLesson: (courseId: string) => void;
+  completeLesson: (courseId: string, lessonId: string) => void;
 };
 
 const ProgressContext = createContext<ProgressContextValue | null>(null);
@@ -32,7 +32,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       .finally(() => setIsLoaded(true));
   }, []);
 
-  function completeLesson(courseId: string) {
+  function completeLesson(courseId: string, lessonId: string) {
     const course = courses.find((item) => item.id === courseId);
     // Saving before the stored progress is loaded would overwrite it.
     if (!course || !isLoaded) {
@@ -40,7 +40,12 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     }
 
     const completed = progress[courseId] ?? course.lessonsCompleted;
-    const next = { ...progress, [courseId]: Math.min(completed + 1, course.lessonsTotal) };
+    // Lessons are completed in order: reviewing an already completed lesson changes nothing.
+    if (course.lessons.findIndex((lesson) => lesson.id === lessonId) !== completed) {
+      return;
+    }
+
+    const next = { ...progress, [courseId]: completed + 1 };
     setProgress(next);
     AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(next)).catch((error) =>
       console.warn('Could not save progress', error)
@@ -67,6 +72,8 @@ export function useCourses(): Course[] {
   const { progress } = useProgress();
 
   return courses.map((course) =>
-    course.id in progress ? { ...course, lessonsCompleted: progress[course.id] } : course
+    course.id in progress
+      ? { ...course, lessonsCompleted: Math.min(progress[course.id], course.lessonsTotal) }
+      : course
   );
 }

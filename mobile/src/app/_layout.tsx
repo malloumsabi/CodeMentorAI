@@ -35,7 +35,8 @@ export default function RootLayout() {
         <AnimatedSplashOverlay />
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="lesson/[courseId]" options={{ headerBackTitle: 'Retour' }} />
+          <Stack.Screen name="course/[courseId]" options={{ headerBackTitle: 'Retour' }} />
+          <Stack.Screen name="lesson/[courseId]/[lessonId]" options={{ headerBackTitle: 'Retour' }} />
         </Stack>
       </ProgressProvider>
     </ThemeProvider>

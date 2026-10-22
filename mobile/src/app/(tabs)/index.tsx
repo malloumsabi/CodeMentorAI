@@ -8,21 +8,22 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ProgressBar } from '@/components/ui/progress-bar';
 import { Spacing } from '@/constants/theme';
-import { getCourseProgress, getCurrentCourse } from '@/data/courses';
+import { getCourseProgress, getCurrentCourse, getNextLesson } from '@/data/courses';
 import { useCourses } from '@/hooks/use-progress';
 
 export default function HomeScreen() {
   const courses = useCourses();
   const currentCourse = getCurrentCourse(courses);
+  const nextLesson = currentCourse && getNextLesson(currentCourse);
 
   return (
     <Screen eyebrow="Bonjour 👋" title="Prêt à coder aujourd’hui ?">
-      {currentCourse && (
+      {currentCourse && nextLesson && (
         <Card elevated style={styles.resumeCard}>
           <ThemedText type="smallBold" themeColor="primary">
             CONTINUER
           </ThemedText>
-          <ThemedText style={styles.resumeTitle}>{currentCourse.nextLesson}</ThemedText>
+          <ThemedText style={styles.resumeTitle}>{nextLesson.title}</ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
             {currentCourse.title} · Leçon {currentCourse.lessonsCompleted + 1}/
             {currentCourse.lessonsTotal}
@@ -35,7 +36,10 @@ export default function HomeScreen() {
             title="Continuer ma leçon"
             style={styles.resumeButton}
             onPress={() =>
-              router.push({ pathname: '/lesson/[courseId]', params: { courseId: currentCourse.id } })
+              router.push({
+                pathname: '/lesson/[courseId]/[lessonId]',
+                params: { courseId: currentCourse.id, lessonId: nextLesson.id },
+              })
             }
           />
         </Card>

@@ -9,18 +9,17 @@ import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui/button';
 import { ProgressBar } from '@/components/ui/progress-bar';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
-import { getCourseProgress } from '@/data/courses';
-import { getLesson } from '@/data/lessons';
 import { useCourses, useProgress } from '@/hooks/use-progress';
 
 export default function LessonScreen() {
-  const { courseId } = useLocalSearchParams<{ courseId: string }>();
+  const { courseId, lessonId } = useLocalSearchParams<{ courseId: string; lessonId: string }>();
   const insets = useSafeAreaInsets();
   const { completeLesson } = useProgress();
   const [isQuizSolved, setIsQuizSolved] = useState(false);
 
   const course = useCourses().find((item) => item.id === courseId);
-  const lesson = course && getLesson(course.id);
+  const lessonIndex = course ? course.lessons.findIndex((item) => item.id === lessonId) : -1;
+  const lesson = course?.lessons[lessonIndex];
 
   const contentStyle = [styles.content, { paddingBottom: insets.bottom + Spacing.four }];
 
@@ -35,26 +34,38 @@ export default function LessonScreen() {
     );
   }
 
-  if (course.lessonsCompleted >= course.lessonsTotal) {
+  if (lessonIndex > course.lessonsCompleted) {
     return (
       <ScrollView contentContainerStyle={contentStyle}>
         <Stack.Screen options={{ title: course.title }} />
-        <ThemedText style={styles.title}>Parcours terminé 🎉</ThemedText>
+        <ThemedText style={styles.title}>Leçon verrouillée 🔒</ThemedText>
         <ThemedText themeColor="textSecondary">
-          Tu as terminé les {course.lessonsTotal} leçons de « {course.title} ». Bravo !
+          Termine d’abord les leçons précédentes de « {course.title} ».
         </ThemedText>
-        <ProgressBar progress={1} color="success" accessibilityLabel={`Progression ${course.title}`} />
         <Button title="Retour" variant="secondary" onPress={() => router.back()} />
       </ScrollView>
     );
   }
 
-  function finishLesson() {
-    if (!course) {
-      return;
+  const isReview = lessonIndex < course.lessonsCompleted;
+  const followingLesson = course.lessons[lessonIndex + 1];
+
+  const finishLesson = () => {
+    completeLesson(course.id, lesson.id);
+    if (followingLesson) {
+      // Replace instead of push, so "back" returns to the course and not to the finished lesson.
+      router.replace({
+        pathname: '/lesson/[courseId]/[lessonId]',
+        params: { courseId: course.id, lessonId: followingLesson.id },
+      });
+    } else {
+      router.back();
     }
-    completeLesson(course.id);
-    router.back();
+  };
+
+  let finishTitle = 'Réponds au quiz pour terminer';
+  if (isQuizSolved) {
+    finishTitle = followingLesson ? 'Leçon suivante' : 'Terminer le parcours';
   }
 
   return (
@@ -62,15 +73,16 @@ export default function LessonScreen() {
       <Stack.Screen options={{ title: course.title }} />
 
       <View style={styles.header}>
-        <ThemedText type="small" themeColor="textSecondary">
-          Leçon {course.lessonsCompleted + 1}/{course.lessonsTotal}
+        <ThemedText type="small" themeColor={isReview ? 'success' : 'textSecondary'}>
+          Leçon {lessonIndex + 1}/{course.lessonsTotal}
+          {isReview ? ' · Déjà terminée' : ''}
         </ThemedText>
         <ThemedText role="heading" style={styles.title}>
-          {course.nextLesson}
+          {lesson.title}
         </ThemedText>
         <ProgressBar
-          progress={getCourseProgress(course)}
-          accessibilityLabel={`Progression ${course.title}`}
+          progress={lessonIndex / course.lessonsTotal}
+          accessibilityLabel={`Position dans le parcours ${course.title}`}
         />
       </View>
 
@@ -84,11 +96,11 @@ export default function LessonScreen() {
 
       <QuizCard quiz={lesson.quiz} onCorrectAnswer={() => setIsQuizSolved(true)} />
 
-      <Button
-        title={isQuizSolved ? 'Terminer la leçon' : 'Réponds au quiz pour terminer'}
-        disabled={!isQuizSolved}
-        onPress={finishLesson}
-      />
+      {isReview ? (
+        <Button title="Retour" variant="secondary" onPress={() => router.back()} />
+      ) : (
+        <Button title={finishTitle} disabled={!isQuizSolved} onPress={finishLesson} />
+      )}
     </ScrollView>
   );
 }
