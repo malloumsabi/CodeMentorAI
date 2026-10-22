@@ -6,6 +6,8 @@ export const en: Dictionary = {
     cancel: 'Cancel',
     close: 'Close',
     save: 'Save',
+    copyCode: 'Copy code',
+    copied: 'Copied',
     progressOf: (title: string) => `${title} progress`,
   },
   tabs: {

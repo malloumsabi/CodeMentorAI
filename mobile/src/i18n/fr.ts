@@ -9,6 +9,8 @@ export const fr = {
     cancel: 'Annuler',
     close: 'Fermer',
     save: 'Enregistrer',
+    copyCode: 'Copier le code',
+    copied: 'Copié',
     progressOf: (title: string) => `Progression ${title}`,
   },
   tabs: {

@@ -6,6 +6,8 @@ export const tr: Dictionary = {
     cancel: 'Vazgeç',
     close: 'Kapat',
     save: 'Kaydet',
+    copyCode: 'Kodu kopyala',
+    copied: 'Kopyalandı',
     progressOf: (title: string) => `${title} ilerlemesi`,
   },
   tabs: {

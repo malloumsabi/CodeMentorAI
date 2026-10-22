@@ -7,8 +7,10 @@ import { useTheme } from '@/hooks/use-theme';
 const ICONS = {
   arrowRight: { ios: 'arrow.right', android: 'arrow_forward', web: 'arrow_forward' },
   arrowUp: { ios: 'arrow.up', android: 'arrow_upward', web: 'arrow_upward' },
+  check: { ios: 'checkmark', android: 'check', web: 'check' },
   chevronRight: { ios: 'chevron.right', android: 'chevron_right', web: 'chevron_right' },
   code: { ios: 'chevron.left.forwardslash.chevron.right', android: 'code', web: 'code' },
+  copy: { ios: 'doc.on.doc', android: 'content_copy', web: 'content_copy' },
   plus: { ios: 'plus', android: 'add', web: 'add' },
 } satisfies Record<string, SymbolViewProps['name']>;
 
