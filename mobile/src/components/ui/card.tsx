@@ -4,18 +4,22 @@ import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 export type CardProps = ViewProps & {
-  elevated?: boolean;
+  /** `filled`: raised surface for the main content; `outline`: border only, for secondary content. */
+  variant?: 'filled' | 'outline';
 };
 
-export function Card({ elevated = false, style, ...rest }: CardProps) {
+/** No shadows: surfaces are told apart by a slightly different background and a 1px border. */
+export function Card({ variant = 'filled', style, ...rest }: CardProps) {
   const theme = useTheme();
 
   return (
     <View
       style={[
         styles.base,
-        { backgroundColor: theme.backgroundElement, borderColor: theme.border },
-        elevated && styles.elevated,
+        {
+          backgroundColor: variant === 'filled' ? theme.backgroundElement : 'transparent',
+          borderColor: theme.border,
+        },
         style,
       ]}
       {...rest}
@@ -26,11 +30,8 @@ export function Card({ elevated = false, style, ...rest }: CardProps) {
 const styles = StyleSheet.create({
   base: {
     padding: Spacing.three,
-    borderRadius: Radius.large,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: Radius.medium + 4,
+    borderWidth: 1,
     gap: Spacing.two,
-  },
-  elevated: {
-    boxShadow: '0 4px 12px rgba(11, 16, 32, 0.12)',
   },
 });

@@ -4,6 +4,7 @@ import { Pressable, StyleSheet } from 'react-native';
 import { CodeBlock } from '@/components/lesson/code-block';
 import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 import { Radius, Spacing, type ThemeColor } from '@/constants/theme';
 import type { Quiz } from '@/data/lessons';
 import { useTheme } from '@/hooks/use-theme';
@@ -35,10 +36,8 @@ export function QuizCard({ quiz, onCorrectAnswer }: QuizCardProps) {
   }
 
   return (
-    <Card elevated>
-      <ThemedText type="smallBold" themeColor="primary">
-        {t.quiz.label}
-      </ThemedText>
+    <Card>
+      <Label themeColor="primary">{t.quiz.label}</Label>
       <ThemedText style={styles.question}>{quiz.question}</ThemedText>
       {quiz.code && <CodeBlock code={quiz.code} />}
 

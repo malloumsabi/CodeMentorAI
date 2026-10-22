@@ -29,7 +29,7 @@ export default function WelcomeScreen() {
                   {'</>'}
                 </ThemedText>
               </View>
-              <ThemedText role="heading" style={styles.title}>
+              <ThemedText role="heading" type="heading">
                 {t.welcome.title}
               </ThemedText>
               <ThemedText themeColor="textSecondary">{t.welcome.subtitle}</ThemedText>
@@ -74,11 +74,6 @@ const styles = StyleSheet.create({
   logoText: {
     fontSize: 24,
     lineHeight: 30,
-    fontWeight: 700,
-  },
-  title: {
-    fontSize: 28,
-    lineHeight: 34,
     fontWeight: 700,
   },
   field: {

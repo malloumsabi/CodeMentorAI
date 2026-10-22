@@ -23,7 +23,7 @@ export default function CourseScreen() {
     return (
       <ScrollView contentContainerStyle={contentStyle}>
         <Stack.Screen options={{ title: t.course.fallbackTitle }} />
-        <ThemedText style={styles.title}>{t.course.notFound}</ThemedText>
+        <ThemedText type="heading">{t.course.notFound}</ThemedText>
         <Button title={t.common.back} variant="secondary" onPress={() => router.back()} />
       </ScrollView>
     );
@@ -53,7 +53,7 @@ export default function CourseScreen() {
         <ThemedText type="small" themeColor="textSecondary">
           {t.course.summary(t.levels[course.level], course.lessonsTotal)}
         </ThemedText>
-        <ThemedText role="heading" style={styles.title}>
+        <ThemedText role="heading" type="heading">
           {course.title}
         </ThemedText>
         <ProgressBar
@@ -99,11 +99,6 @@ const styles = StyleSheet.create({
   },
   header: {
     gap: Spacing.two,
-  },
-  title: {
-    fontSize: 28,
-    lineHeight: 34,
-    fontWeight: 700,
   },
   list: {
     gap: Spacing.two,

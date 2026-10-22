@@ -29,7 +29,7 @@ export default function LessonScreen() {
     return (
       <ScrollView contentContainerStyle={contentStyle}>
         <Stack.Screen options={{ title: t.lesson.fallbackTitle }} />
-        <ThemedText style={styles.title}>{t.lesson.notFound}</ThemedText>
+        <ThemedText type="heading">{t.lesson.notFound}</ThemedText>
         <ThemedText themeColor="textSecondary">{t.lesson.notFoundHint}</ThemedText>
         <Button title={t.common.back} variant="secondary" onPress={() => router.back()} />
       </ScrollView>
@@ -40,7 +40,7 @@ export default function LessonScreen() {
     return (
       <ScrollView contentContainerStyle={contentStyle}>
         <Stack.Screen options={{ title: course.title }} />
-        <ThemedText style={styles.title}>{t.lesson.locked}</ThemedText>
+        <ThemedText type="heading">{t.lesson.locked}</ThemedText>
         <ThemedText themeColor="textSecondary">{t.lesson.lockedHint(course.title)}</ThemedText>
         <Button title={t.common.back} variant="secondary" onPress={() => router.back()} />
       </ScrollView>
@@ -77,7 +77,7 @@ export default function LessonScreen() {
           {t.lesson.counter(lessonIndex + 1, course.lessonsTotal)}
           {isReview ? t.lesson.alreadyDone : ''}
         </ThemedText>
-        <ThemedText role="heading" style={styles.title}>
+        <ThemedText role="heading" type="heading">
           {lesson.title}
         </ThemedText>
         <ProgressBar
@@ -128,10 +128,5 @@ const styles = StyleSheet.create({
   header: {
     gap: Spacing.two,
     marginBottom: Spacing.two,
-  },
-  title: {
-    fontSize: 28,
-    lineHeight: 34,
-    fontWeight: 700,
   },
 });

@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   TextInput,
@@ -14,7 +15,9 @@ import { MessageBubble } from '@/components/mentor/message-bubble';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Button } from '@/components/ui/button';
-import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
+import { Icon } from '@/components/ui/icon';
+import { IconButton } from '@/components/ui/icon-button';
+import { Fonts, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { askMentor, MAX_MESSAGE_LENGTH, type LessonRef, type MentorMessage } from '@/utils/mentor-api';
@@ -44,6 +47,7 @@ export function MentorChat({ lesson, subtitle, onClose, bottomPadding, safeAreaE
 
   const suggestions = lesson ? t.mentor.lessonSuggestions : t.mentor.suggestions;
   const welcome: MentorMessage = { role: 'assistant', content: lesson ? t.mentor.lessonWelcome : t.mentor.welcome };
+  const canSend = draft.trim().length > 0 && !isLoading;
 
   async function send(text: string) {
     const question = text.trim();
@@ -82,24 +86,22 @@ export function MentorChat({ lesson, subtitle, onClose, bottomPadding, safeAreaE
         <KeyboardAvoidingView
           style={[styles.container, styles.column, { paddingBottom: bottomPadding }]}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-          <View style={styles.header}>
+          <View style={[styles.header, { borderBottomColor: theme.border }]}>
+            <View style={[styles.mark, { backgroundColor: theme.backgroundElement, borderColor: theme.border }]}>
+              <Icon name="code" size={18} color="primary" />
+            </View>
             <View style={styles.titleBlock}>
               <ThemedText role="heading" style={styles.title}>
                 {t.mentor.title}
               </ThemedText>
               {subtitle && (
-                <ThemedText type="small" themeColor="textSecondary" numberOfLines={1}>
+                <ThemedText type="small" themeColor="textSecondary" numberOfLines={1} style={styles.subtitle}>
                   {subtitle}
                 </ThemedText>
               )}
             </View>
             {messages.length > 0 && !isLoading && (
-              <Button
-                title={t.mentor.startOver}
-                accessibilityLabel={t.mentor.startOverLabel}
-                variant="ghost"
-                onPress={startOver}
-              />
+              <IconButton icon="plus" accessibilityLabel={t.mentor.startOverLabel} onPress={startOver} />
             )}
             {onClose && <Button title={t.common.close} variant="ghost" onPress={onClose} />}
           </View>
@@ -133,37 +135,51 @@ export function MentorChat({ lesson, subtitle, onClose, bottomPadding, safeAreaE
             )}
 
             {messages.length === 0 && !isLoading && (
-              <View style={styles.suggestions}>
-                <ThemedText type="small" themeColor="textSecondary">
-                  {t.mentor.suggestionsTitle}
-                </ThemedText>
+              <View style={styles.suggestions} accessibilityLabel={t.mentor.suggestionsTitle}>
                 {suggestions.map((suggestion) => (
-                  <Button key={suggestion} title={suggestion} variant="secondary" onPress={() => send(suggestion)} />
+                  <Pressable
+                    key={suggestion}
+                    role="button"
+                    onPress={() => send(suggestion)}
+                    style={({ pressed }) => [styles.chip, { borderColor: theme.border }, pressed && styles.pressed]}>
+                    <ThemedText type="small" style={styles.chipText}>
+                      {suggestion}
+                    </ThemedText>
+                  </Pressable>
                 ))}
               </View>
             )}
           </ScrollView>
 
-          <View style={styles.composer}>
-            <TextInput
-              value={draft}
-              onChangeText={setDraft}
-              placeholder={t.mentor.placeholder}
-              placeholderTextColor={theme.textSecondary}
-              multiline
-              maxLength={MAX_MESSAGE_LENGTH}
-              editable={!isLoading}
-              accessibilityLabel={t.mentor.inputLabel}
-              style={[
-                styles.input,
-                { color: theme.text, backgroundColor: theme.backgroundElement, borderColor: theme.border },
-              ]}
-            />
-            <Button title={t.mentor.send} disabled={!draft.trim() || isLoading} onPress={() => send(draft)} />
+          <View style={[styles.composer, { borderTopColor: theme.border }]}>
+            <View style={styles.inputRow}>
+              <TextInput
+                value={draft}
+                onChangeText={setDraft}
+                placeholder={t.mentor.placeholder}
+                placeholderTextColor={theme.textSecondary}
+                multiline
+                maxLength={MAX_MESSAGE_LENGTH}
+                editable={!isLoading}
+                accessibilityLabel={t.mentor.inputLabel}
+                style={[
+                  styles.input,
+                  { color: theme.text, backgroundColor: theme.backgroundElement, borderColor: theme.border },
+                ]}
+              />
+              <IconButton
+                icon="arrowUp"
+                variant="primary"
+                size={48}
+                accessibilityLabel={t.mentor.send}
+                disabled={!canSend}
+                onPress={() => send(draft)}
+              />
+            </View>
+            <ThemedText type="small" themeColor="textSecondary" style={styles.disclaimer}>
+              {t.mentor.disclaimer}
+            </ThemedText>
           </View>
-          <ThemedText type="small" themeColor="textSecondary" style={styles.disclaimer}>
-            {t.mentor.disclaimer}
-          </ThemedText>
         </KeyboardAvoidingView>
       </SafeAreaView>
     </ThemedView>
@@ -182,23 +198,35 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.two,
-    paddingHorizontal: Spacing.three,
+    gap: Spacing.three,
+    paddingHorizontal: Spacing.three + Spacing.one,
     paddingTop: Spacing.three,
-    paddingBottom: Spacing.two,
+    paddingBottom: Spacing.three,
+    borderBottomWidth: 1,
+  },
+  mark: {
+    width: 40,
+    height: 40,
+    borderRadius: Radius.medium,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   titleBlock: {
     flex: 1,
   },
   title: {
-    fontSize: 28,
-    lineHeight: 34,
+    fontSize: 18,
+    lineHeight: 24,
     fontWeight: 700,
   },
+  subtitle: {
+    fontFamily: Fonts.mono,
+    fontSize: 12,
+  },
   messages: {
-    paddingHorizontal: Spacing.three,
-    paddingBottom: Spacing.three,
-    gap: Spacing.three,
+    padding: Spacing.three + Spacing.one,
+    gap: Spacing.four - 4,
   },
   thinking: {
     flexDirection: 'row',
@@ -206,29 +234,48 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   suggestions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: Spacing.two,
   },
+  chip: {
+    minHeight: 40,
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.three + 2,
+    borderRadius: Radius.full,
+    borderWidth: 1,
+  },
+  chipText: {
+    fontWeight: 500,
+  },
+  pressed: {
+    opacity: 0.7,
+  },
   composer: {
+    gap: Spacing.two,
+    paddingHorizontal: Spacing.three,
+    paddingTop: Spacing.three,
+    borderTopWidth: 1,
+  },
+  inputRow: {
     flexDirection: 'row',
     alignItems: 'flex-end',
     gap: Spacing.two,
-    paddingHorizontal: Spacing.three,
-    paddingTop: Spacing.two,
   },
   input: {
     flex: 1,
     minHeight: 48,
     maxHeight: 140,
     paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
-    borderRadius: Radius.medium,
+    paddingTop: 13,
+    paddingBottom: 13,
+    borderRadius: Radius.medium + 2,
     borderWidth: 1,
-    fontSize: 16,
+    fontSize: 15,
   },
   disclaimer: {
     textAlign: 'center',
-    paddingHorizontal: Spacing.three,
-    paddingTop: Spacing.one,
-    fontSize: 12,
+    fontSize: 11,
+    lineHeight: 16,
   },
 });

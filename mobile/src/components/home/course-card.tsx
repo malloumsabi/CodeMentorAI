@@ -1,24 +1,24 @@
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { CourseBadge } from '@/components/home/course-badge';
 import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/ui/card';
+import { Icon } from '@/components/ui/icon';
 import { ProgressBar } from '@/components/ui/progress-bar';
-import { Radius, Spacing } from '@/constants/theme';
+import { Fonts, Spacing } from '@/constants/theme';
 import { getCourseProgress, type Course } from '@/data/courses';
-import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 
 type CourseCardProps = {
   course: Course;
 };
 
+/** Card for a course in progress: title, level and a progress bar with its counter. */
 export function CourseCard({ course }: CourseCardProps) {
-  const theme = useTheme();
-  const progress = getCourseProgress(course);
-  const isFinished = course.lessonsCompleted === course.lessonsTotal;
   const { t } = useI18n();
   const level = t.levels[course.level];
+  const isFinished = course.lessonsCompleted === course.lessonsTotal;
 
   return (
     <Pressable
@@ -26,58 +26,65 @@ export function CourseCard({ course }: CourseCardProps) {
       accessibilityLabel={t.courseCard.accessibilityLabel(course.title, level)}
       onPress={() => router.push({ pathname: '/course/[courseId]', params: { courseId: course.id } })}
       style={({ pressed }) => pressed && styles.pressed}>
-      <Card>
+      <Card style={styles.card}>
         <View style={styles.header}>
-          <View style={[styles.badge, { backgroundColor: theme.backgroundSelected }]}>
-            <ThemedText type="smallBold" themeColor="accent" numberOfLines={1}>
-              {course.badge}
-            </ThemedText>
-          </View>
+          <CourseBadge label={course.badge} />
           <View style={styles.titleBlock}>
-            <ThemedText style={styles.title} numberOfLines={2}>
+            <ThemedText type="smallBold" style={styles.title} numberOfLines={2}>
               {course.title}
             </ThemedText>
             <ThemedText type="small" themeColor="textSecondary">
-              {level}
+              {t.course.summary(level, course.lessonsTotal)}
             </ThemedText>
           </View>
+          <Icon name="chevronRight" size={16} color="textSecondary" />
         </View>
 
-        <ProgressBar
-          progress={progress}
-          color={isFinished ? 'success' : 'primary'}
-          accessibilityLabel={t.common.progressOf(course.title)}
-        />
-        <ThemedText type="small" themeColor="textSecondary">
-          {course.lessonsCompleted === 0
-            ? t.courseCard.notStarted(course.lessonsTotal)
-            : t.courseCard.lessonsDone(course.lessonsCompleted, course.lessonsTotal)}
-        </ThemedText>
+        <View style={styles.progress}>
+          <View style={styles.bar}>
+            <ProgressBar
+              progress={getCourseProgress(course)}
+              color={isFinished ? 'success' : 'primary'}
+              accessibilityLabel={t.common.progressOf(course.title)}
+            />
+          </View>
+          <ThemedText type="small" themeColor="textSecondary" style={styles.count}>
+            {course.lessonsCompleted}/{course.lessonsTotal}
+          </ThemedText>
+        </View>
       </Card>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
+  pressed: {
+    opacity: 0.8,
+  },
+  card: {
+    gap: Spacing.three,
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.three,
   },
-  badge: {
-    width: 48,
-    height: 48,
-    borderRadius: Radius.medium,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   titleBlock: {
     flex: 1,
   },
   title: {
-    fontWeight: 600,
+    fontSize: 15,
   },
-  pressed: {
-    opacity: 0.8,
+  progress: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two + 2,
+  },
+  bar: {
+    flex: 1,
+  },
+  count: {
+    fontFamily: Fonts.mono,
+    fontSize: 12,
   },
 });

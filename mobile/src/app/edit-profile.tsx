@@ -21,7 +21,7 @@ export default function EditProfileScreen() {
         <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
           <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
             <View style={styles.header}>
-              <ThemedText role="heading" style={styles.title}>
+              <ThemedText type="heading" role="heading" style={styles.title}>
                 {t.profile.edit}
               </ThemedText>
               <Button title={t.common.close} variant="ghost" onPress={() => router.back()} />
@@ -59,8 +59,5 @@ const styles = StyleSheet.create({
   },
   title: {
     flex: 1,
-    fontSize: 28,
-    lineHeight: 34,
-    fontWeight: 700,
   },
 });
