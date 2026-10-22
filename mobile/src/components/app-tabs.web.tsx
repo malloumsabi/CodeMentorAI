@@ -10,24 +10,27 @@ import type { ComponentRef, Ref } from 'react';
 import { Pressable, View, StyleSheet } from 'react-native';
 
 import { MaxContentWidth, Spacing } from '@/constants/theme';
+import { useI18n } from '@/i18n';
 
 import { ThemedText } from './themed-text';
 import { ThemedView } from './themed-view';
 
 export default function AppTabs() {
+  const { t } = useI18n();
+
   return (
     <Tabs>
       <TabSlot style={{ height: '100%' }} />
       <TabList asChild>
         <CustomTabList>
           <TabTrigger name="home" href="/" asChild>
-            <TabButton>Accueil</TabButton>
+            <TabButton>{t.tabs.home}</TabButton>
           </TabTrigger>
           <TabTrigger name="courses" href="/courses" asChild>
-            <TabButton>Parcours</TabButton>
+            <TabButton>{t.tabs.courses}</TabButton>
           </TabTrigger>
           <TabTrigger name="mentor" href="/mentor" asChild>
-            <TabButton>Mentor IA</TabButton>
+            <TabButton>{t.tabs.mentor}</TabButton>
           </TabTrigger>
         </CustomTabList>
       </TabList>

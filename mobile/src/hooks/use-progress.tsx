@@ -1,7 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 
-import { courses, type Course } from '@/data/courses';
+import { getCourses, type Course } from '@/data/courses';
+import { useI18n } from '@/i18n';
+import { DEFAULT_LANGUAGE } from '@/i18n/languages';
+
+/** Progress only depends on course and lesson ids, which are the same in every language. */
+const courses = getCourses(DEFAULT_LANGUAGE);
 
 /** Bump the version suffix if the stored shape or meaning changes (v1 counted lessons of the old 15–24 lesson demo courses). */
 const STORAGE_KEY = 'codementor/progress/v2';
@@ -79,11 +84,12 @@ export function useProgress() {
   return context;
 }
 
-/** Courses with the saved progress applied. */
+/** Courses in the current language, with the saved progress applied. */
 export function useCourses(): Course[] {
   const { progress } = useProgress();
+  const { language } = useI18n();
 
-  return courses.map((course) =>
+  return getCourses(language).map((course) =>
     course.id in progress
       ? { ...course, lessonsCompleted: Math.min(progress[course.id], course.lessonsTotal) }
       : course

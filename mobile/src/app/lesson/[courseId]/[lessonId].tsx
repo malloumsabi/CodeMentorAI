@@ -10,12 +10,14 @@ import { Button } from '@/components/ui/button';
 import { ProgressBar } from '@/components/ui/progress-bar';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useCourses, useProgress } from '@/hooks/use-progress';
+import { useI18n } from '@/i18n';
 
 export default function LessonScreen() {
   const { courseId, lessonId } = useLocalSearchParams<{ courseId: string; lessonId: string }>();
   const insets = useSafeAreaInsets();
   const { completeLesson } = useProgress();
   const [isQuizSolved, setIsQuizSolved] = useState(false);
+  const { t } = useI18n();
 
   const course = useCourses().find((item) => item.id === courseId);
   const lessonIndex = course ? course.lessons.findIndex((item) => item.id === lessonId) : -1;
@@ -26,10 +28,10 @@ export default function LessonScreen() {
   if (!course || !lesson) {
     return (
       <ScrollView contentContainerStyle={contentStyle}>
-        <Stack.Screen options={{ title: 'Leçon' }} />
-        <ThemedText style={styles.title}>Leçon introuvable</ThemedText>
-        <ThemedText themeColor="textSecondary">Cette leçon n’existe pas ou n’est plus disponible.</ThemedText>
-        <Button title="Retour" variant="secondary" onPress={() => router.back()} />
+        <Stack.Screen options={{ title: t.lesson.fallbackTitle }} />
+        <ThemedText style={styles.title}>{t.lesson.notFound}</ThemedText>
+        <ThemedText themeColor="textSecondary">{t.lesson.notFoundHint}</ThemedText>
+        <Button title={t.common.back} variant="secondary" onPress={() => router.back()} />
       </ScrollView>
     );
   }
@@ -38,11 +40,9 @@ export default function LessonScreen() {
     return (
       <ScrollView contentContainerStyle={contentStyle}>
         <Stack.Screen options={{ title: course.title }} />
-        <ThemedText style={styles.title}>Leçon verrouillée 🔒</ThemedText>
-        <ThemedText themeColor="textSecondary">
-          Termine d’abord les leçons précédentes de « {course.title} ».
-        </ThemedText>
-        <Button title="Retour" variant="secondary" onPress={() => router.back()} />
+        <ThemedText style={styles.title}>{t.lesson.locked}</ThemedText>
+        <ThemedText themeColor="textSecondary">{t.lesson.lockedHint(course.title)}</ThemedText>
+        <Button title={t.common.back} variant="secondary" onPress={() => router.back()} />
       </ScrollView>
     );
   }
@@ -63,9 +63,9 @@ export default function LessonScreen() {
     }
   };
 
-  let finishTitle = 'Réponds au quiz pour terminer';
+  let finishTitle = t.lesson.answerQuizToFinish;
   if (isQuizSolved) {
-    finishTitle = followingLesson ? 'Leçon suivante' : 'Terminer le parcours';
+    finishTitle = followingLesson ? t.lesson.nextLesson : t.lesson.finishCourse;
   }
 
   return (
@@ -74,15 +74,15 @@ export default function LessonScreen() {
 
       <View style={styles.header}>
         <ThemedText type="small" themeColor={isReview ? 'success' : 'textSecondary'}>
-          Leçon {lessonIndex + 1}/{course.lessonsTotal}
-          {isReview ? ' · Déjà terminée' : ''}
+          {t.lesson.counter(lessonIndex + 1, course.lessonsTotal)}
+          {isReview ? t.lesson.alreadyDone : ''}
         </ThemedText>
         <ThemedText role="heading" style={styles.title}>
           {lesson.title}
         </ThemedText>
         <ProgressBar
           progress={lessonIndex / course.lessonsTotal}
-          accessibilityLabel={`Position dans le parcours ${course.title}`}
+          accessibilityLabel={t.lesson.positionOf(course.title)}
         />
       </View>
 
@@ -95,7 +95,7 @@ export default function LessonScreen() {
       )}
 
       <Button
-        title="Une question ? Demander au mentor"
+        title={t.lesson.askMentor}
         variant="secondary"
         onPress={() =>
           router.push({
@@ -108,7 +108,7 @@ export default function LessonScreen() {
       <QuizCard quiz={lesson.quiz} onCorrectAnswer={() => setIsQuizSolved(true)} />
 
       {isReview ? (
-        <Button title="Retour" variant="secondary" onPress={() => router.back()} />
+        <Button title={t.common.back} variant="secondary" onPress={() => router.back()} />
       ) : (
         <Button title={finishTitle} disabled={!isQuizSolved} onPress={finishLesson} />
       )}

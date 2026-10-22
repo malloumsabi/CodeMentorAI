@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { useI18n } from '@/i18n';
 
 export type LessonStatus = 'done' | 'next' | 'locked';
 
@@ -13,22 +14,18 @@ type LessonRowProps = {
   onPress: () => void;
 };
 
-const statusLabels: Record<LessonStatus, string> = {
-  done: 'Terminée · Revoir',
-  next: 'À faire maintenant',
-  locked: 'Verrouillée',
-};
-
 export function LessonRow({ number, title, status, onPress }: LessonRowProps) {
   const theme = useTheme();
+  const { t } = useI18n();
   const isLocked = status === 'locked';
+  const statusLabel = t.lessonRow[status];
 
   const circleColor = status === 'done' ? theme.success : status === 'next' ? theme.primary : theme.backgroundSelected;
 
   return (
     <Pressable
       role="button"
-      accessibilityLabel={`Leçon ${number} : ${title}. ${statusLabels[status]}`}
+      accessibilityLabel={t.lessonRow.accessibilityLabel(number, title, statusLabel)}
       accessibilityState={{ disabled: isLocked }}
       disabled={isLocked}
       onPress={onPress}
@@ -51,7 +48,7 @@ export function LessonRow({ number, title, status, onPress }: LessonRowProps) {
           {title}
         </ThemedText>
         <ThemedText type="small" themeColor={status === 'next' ? 'primary' : 'textSecondary'}>
-          {statusLabels[status]}
+          {statusLabel}
         </ThemedText>
       </View>
     </Pressable>

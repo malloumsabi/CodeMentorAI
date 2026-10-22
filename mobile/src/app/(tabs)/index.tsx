@@ -10,30 +10,35 @@ import { ProgressBar } from '@/components/ui/progress-bar';
 import { Spacing } from '@/constants/theme';
 import { getCourseProgress, getCurrentCourse, getNextLesson } from '@/data/courses';
 import { useCourses } from '@/hooks/use-progress';
+import { useI18n } from '@/i18n';
 
 export default function HomeScreen() {
   const courses = useCourses();
   const currentCourse = getCurrentCourse(courses);
   const nextLesson = currentCourse && getNextLesson(currentCourse);
+  const { t } = useI18n();
 
   return (
-    <Screen eyebrow="Bonjour 👋" title="Prêt à coder aujourd’hui ?">
+    <Screen eyebrow={t.home.greeting} title={t.home.title}>
       {currentCourse && nextLesson && (
         <Card elevated style={styles.resumeCard}>
           <ThemedText type="smallBold" themeColor="primary">
-            CONTINUER
+            {t.home.resume}
           </ThemedText>
           <ThemedText style={styles.resumeTitle}>{nextLesson.title}</ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
-            {currentCourse.title} · Leçon {currentCourse.lessonsCompleted + 1}/
-            {currentCourse.lessonsTotal}
+            {t.home.resumeDetails(
+              currentCourse.title,
+              currentCourse.lessonsCompleted + 1,
+              currentCourse.lessonsTotal
+            )}
           </ThemedText>
           <ProgressBar
             progress={getCourseProgress(currentCourse)}
-            accessibilityLabel={`Progression ${currentCourse.title}`}
+            accessibilityLabel={t.common.progressOf(currentCourse.title)}
           />
           <Button
-            title="Continuer ma leçon"
+            title={t.home.resumeButton}
             style={styles.resumeButton}
             onPress={() =>
               router.push({
@@ -46,7 +51,7 @@ export default function HomeScreen() {
       )}
 
       <View style={styles.section}>
-        <ThemedText style={styles.sectionTitle}>Mes parcours</ThemedText>
+        <ThemedText style={styles.sectionTitle}>{t.home.myCourses}</ThemedText>
         {courses.map((course) => (
           <CourseCard key={course.id} course={course} />
         ))}

@@ -1,6 +1,8 @@
 import Anthropic from '@anthropic-ai/sdk';
 
-import { courses } from '@/data/courses';
+import { getCourses } from '@/data/courses';
+import type { Dictionary } from '@/i18n/fr';
+import { DEFAULT_LANGUAGE, getDictionary, isLanguage, LANGUAGE_NAMES, type Language } from '@/i18n/languages';
 import {
   MAX_HISTORY_MESSAGES,
   MAX_MESSAGE_LENGTH,
@@ -10,7 +12,7 @@ import {
 } from '@/utils/mentor-api';
 
 /**
- * Server-only route: POST /api/mentor with `{ messages: MentorMessage[], lesson?: LessonRef }`.
+ * Server-only route: POST /api/mentor with `{ messages: MentorMessage[], language?: Language, lesson?: LessonRef }`.
  * Invalid requests get a JSON `{ error }`; otherwise the reply is streamed as NDJSON `MentorStreamEvent` lines.
  * Reads ANTHROPIC_API_KEY from the server environment (mobile/.env.local in development).
  */
@@ -18,7 +20,7 @@ import {
 const SYSTEM_PROMPT = `Tu es le mentor de CodeMentor AI, une application mobile qui apprend la programmation à des débutants (Python, JavaScript, HTML et CSS, algorithmique).
 
 Ta façon d'aider :
-- Réponds dans la langue de l'élève (le français le plus souvent), avec des mots simples. Explique chaque terme technique la première fois que tu l'utilises.
+- Réponds avec des mots simples. Explique chaque terme technique la première fois que tu l'utilises.
 - L'élève lit sur un téléphone : fais des réponses courtes, quelques paragraphes au plus, et propose d'approfondir s'il le souhaite.
 - Illustre avec de petits exemples de code. Mets tout code dans un bloc entre trois accents graves (\`\`\`). N'utilise pas d'autre mise en forme Markdown (titres, gras, tableaux) : l'application affiche du texte brut.
 - Quand l'élève travaille sur un exercice, guide-le avec des indices et des questions plutôt que de donner toute la solution, sauf s'il la demande explicitement.
@@ -59,12 +61,13 @@ function parseMessages(body: unknown): MentorMessage[] | null {
  * Builds the lesson part of the system prompt from the app's own lesson data.
  * Returns undefined when no lesson was given, and null when the ids don't match a lesson.
  */
-function describeLesson(lessonRef: unknown): string | null | undefined {
+function describeLesson(lessonRef: unknown, language: Language, t: Dictionary): string | null | undefined {
   if (lessonRef === undefined || lessonRef === null) {
     return undefined;
   }
   const { courseId, lessonId } = lessonRef as Partial<LessonRef>;
-  const course = courses.find((item) => item.id === courseId);
+  // The lesson in the app language, as the student sees it on screen.
+  const course = getCourses(language).find((item) => item.id === courseId);
   const lesson = course?.lessons.find((item) => item.id === lessonId);
   if (!course || !lesson) {
     return null;
@@ -78,7 +81,7 @@ function describeLesson(lessonRef: unknown): string | null | undefined {
 
   return `L'élève t'écrit depuis cette leçon de l'application. Appuie-toi dessus pour lui répondre.
 
-Parcours : ${course.title} (${course.level})
+Parcours : ${course.title} (${t.levels[course.level]})
 Leçon : ${lesson.title}
 
 ${content}
@@ -91,17 +94,26 @@ Bonne réponse : ${quiz.options[quiz.answerIndex]}. ${quiz.explanation}
 La bonne réponse t'est donnée pour que tes indices soient justes. Ne la révèle pas : aide l'élève à la trouver lui-même, sauf s'il te demande explicitement la réponse.`;
 }
 
+/** Tells the mentor which language to answer in. */
+function describeLanguage(language: Language): string {
+  return `Langue de l'application : ${LANGUAGE_NAMES[language]}. Réponds dans cette langue, sauf si l'élève t'écrit dans une autre langue : réponds alors dans la sienne.`;
+}
+
 export async function POST(request: Request) {
+  const body = (await request.json().catch(() => null)) as { language?: unknown; lesson?: unknown } | null;
+  const language = isLanguage(body?.language) ? body.language : DEFAULT_LANGUAGE;
+  const t = getDictionary(language);
+
   if (!process.env.ANTHROPIC_API_KEY) {
-    return errorResponse('Le serveur n’a pas de clé API (ANTHROPIC_API_KEY manquante dans mobile/.env.local).', 500);
+    return errorResponse(t.mentorErrors.noApiKey, 500);
   }
 
-  const body: unknown = await request.json().catch(() => null);
   const messages = parseMessages(body);
-  const lessonContext = describeLesson((body as { lesson?: unknown } | null)?.lesson);
+  const lessonContext = describeLesson(body?.lesson, language, t);
   if (!messages || lessonContext === null) {
-    return errorResponse('Message invalide ou trop long.', 400);
+    return errorResponse(t.mentorErrors.invalidRequest, 400);
   }
+  const system = [SYSTEM_PROMPT, describeLanguage(language), lessonContext].filter(Boolean).join('\n\n');
 
   const encoder = new TextEncoder();
   const responseBody = new ReadableStream<Uint8Array>({
@@ -112,7 +124,7 @@ export async function POST(request: Request) {
         const stream = client.beta.messages.stream({
           model: 'claude-opus-5-5',
           max_tokens: 4096,
-          system: lessonContext ? `${SYSTEM_PROMPT}\n\n${lessonContext}` : SYSTEM_PROMPT,
+          system,
           messages,
           // Tutoring chat: low effort keeps answers fast and cheap.
           output_config: { effort: 'low' },
@@ -131,13 +143,13 @@ export async function POST(request: Request) {
         const message = await stream.finalMessage();
         if (message.stop_reason === 'refusal') {
           // Every model declined: the partial text must not be shown as an answer.
-          send({ type: 'refusal', text: REFUSAL_REPLY });
+          send({ type: 'refusal', text: t.mentorErrors.refusal });
         } else if (message.stop_reason === 'max_tokens') {
-          send({ type: 'text', text: '\n\n(Réponse coupée car trop longue.)' });
+          send({ type: 'text', text: t.mentorErrors.truncated });
         }
         send({ type: 'done' });
       } catch (error) {
-        send({ type: 'error', error: describeError(error) });
+        send({ type: 'error', error: describeError(error, t) });
       } finally {
         controller.close();
       }
@@ -149,23 +161,20 @@ export async function POST(request: Request) {
   });
 }
 
-const REFUSAL_REPLY =
-  'Je ne peux pas répondre à cette demande. Essaie de la reformuler, ou pose-moi une autre question sur le code.';
-
-function describeError(error: unknown): string {
+function describeError(error: unknown, t: Dictionary): string {
   if (error instanceof Anthropic.AuthenticationError || error instanceof Anthropic.PermissionDeniedError) {
-    return 'Clé API refusée. Vérifie la clé dans mobile/.env.local et le crédit du compte.';
+    return t.mentorErrors.keyRefused;
   }
   if (error instanceof Anthropic.RateLimitError) {
-    return 'Trop de questions en peu de temps. Attends un peu avant de réessayer.';
+    return t.mentorErrors.rateLimited;
   }
   if (error instanceof Anthropic.APIConnectionError) {
-    return 'Le serveur n’arrive pas à joindre l’API Claude. Vérifie la connexion internet.';
+    return t.mentorErrors.apiUnreachable;
   }
   if (error instanceof Anthropic.APIError) {
     console.error('Claude API error', error.status, error.message);
-    return `Erreur de l’API Claude (${error.status ?? 'inconnue'}). Réessaie plus tard.`;
+    return t.mentorErrors.apiError(String(error.status ?? '?'));
   }
   console.error('Mentor route error', error);
-  return 'Une erreur inattendue est survenue sur le serveur. Réessaie.';
+  return t.mentorErrors.unexpected;
 }

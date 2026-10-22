@@ -9,20 +9,22 @@ import { ProgressBar } from '@/components/ui/progress-bar';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { getCourseProgress, getNextLesson } from '@/data/courses';
 import { useCourses } from '@/hooks/use-progress';
+import { useI18n } from '@/i18n';
 
 export default function CourseScreen() {
   const { courseId } = useLocalSearchParams<{ courseId: string }>();
   const insets = useSafeAreaInsets();
   const course = useCourses().find((item) => item.id === courseId);
+  const { t } = useI18n();
 
   const contentStyle = [styles.content, { paddingBottom: insets.bottom + Spacing.four }];
 
   if (!course) {
     return (
       <ScrollView contentContainerStyle={contentStyle}>
-        <Stack.Screen options={{ title: 'Parcours' }} />
-        <ThemedText style={styles.title}>Parcours introuvable</ThemedText>
-        <Button title="Retour" variant="secondary" onPress={() => router.back()} />
+        <Stack.Screen options={{ title: t.course.fallbackTitle }} />
+        <ThemedText style={styles.title}>{t.course.notFound}</ThemedText>
+        <Button title={t.common.back} variant="secondary" onPress={() => router.back()} />
       </ScrollView>
     );
   }
@@ -49,7 +51,7 @@ export default function CourseScreen() {
 
       <View style={styles.header}>
         <ThemedText type="small" themeColor="textSecondary">
-          {course.level} · {course.lessonsTotal} leçons
+          {t.course.summary(t.levels[course.level], course.lessonsTotal)}
         </ThemedText>
         <ThemedText role="heading" style={styles.title}>
           {course.title}
@@ -57,18 +59,16 @@ export default function CourseScreen() {
         <ProgressBar
           progress={getCourseProgress(course)}
           color={isFinished ? 'success' : 'primary'}
-          accessibilityLabel={`Progression ${course.title}`}
+          accessibilityLabel={t.common.progressOf(course.title)}
         />
         <ThemedText type="small" themeColor={isFinished ? 'success' : 'textSecondary'}>
-          {isFinished
-            ? 'Parcours terminé 🎉'
-            : `${course.lessonsCompleted}/${course.lessonsTotal} leçons terminées`}
+          {isFinished ? t.course.finished : t.course.lessonsCompleted(course.lessonsCompleted, course.lessonsTotal)}
         </ThemedText>
       </View>
 
       {nextLesson && (
         <Button
-          title={course.lessonsCompleted === 0 ? 'Commencer le parcours' : 'Continuer'}
+          title={course.lessonsCompleted === 0 ? t.course.start : t.course.continue}
           onPress={() => openLesson(nextLesson.id)}
         />
       )}

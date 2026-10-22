@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Radius, Spacing, type ThemeColor } from '@/constants/theme';
 import type { Quiz } from '@/data/lessons';
 import { useTheme } from '@/hooks/use-theme';
+import { useI18n } from '@/i18n';
 
 type QuizCardProps = {
   quiz: Quiz;
@@ -15,6 +16,7 @@ type QuizCardProps = {
 
 export function QuizCard({ quiz, onCorrectAnswer }: QuizCardProps) {
   const theme = useTheme();
+  const { t } = useI18n();
   const [selected, setSelected] = useState<number | null>(null);
   const isCorrect = selected === quiz.answerIndex;
 
@@ -35,7 +37,7 @@ export function QuizCard({ quiz, onCorrectAnswer }: QuizCardProps) {
   return (
     <Card elevated>
       <ThemedText type="smallBold" themeColor="primary">
-        À TOI DE JOUER
+        {t.quiz.label}
       </ThemedText>
       <ThemedText style={styles.question}>{quiz.question}</ThemedText>
       {quiz.code && <CodeBlock code={quiz.code} />}
@@ -62,7 +64,7 @@ export function QuizCard({ quiz, onCorrectAnswer }: QuizCardProps) {
           type="small"
           themeColor={isCorrect ? 'success' : 'error'}
           style={styles.feedback}>
-          {isCorrect ? `Bonne réponse ! ${quiz.explanation}` : 'Pas tout à fait. Réessaie !'}
+          {isCorrect ? t.quiz.correct(quiz.explanation) : t.quiz.wrong}
         </ThemedText>
       )}
     </Card>

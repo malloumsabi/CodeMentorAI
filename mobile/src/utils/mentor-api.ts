@@ -1,3 +1,5 @@
+import { getDictionary, type Language } from '@/i18n/languages';
+
 /**
  * Client side of the AI mentor: shared types and the call to the `/api/mentor` route.
  * The Claude API key never reaches the app; only the server route uses it.
@@ -36,24 +38,25 @@ export const MAX_HISTORY_MESSAGES = 21;
 export async function askMentor(
   history: MentorMessage[],
   onText: (replySoFar: string) => void,
-  lesson?: LessonRef
+  { language, lesson }: { language: Language; lesson?: LessonRef }
 ): Promise<string> {
+  const errors = getDictionary(language).mentorErrors;
   let response: Response;
   try {
     // On Android and iOS, the global fetch is expo/fetch, which supports streaming response bodies.
     response = await fetch('/api/mentor', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: history.slice(-MAX_HISTORY_MESSAGES), lesson }),
+      body: JSON.stringify({ messages: history.slice(-MAX_HISTORY_MESSAGES), language, lesson }),
     });
   } catch {
-    throw new Error('Impossible de joindre le serveur. Vérifie ta connexion et que `npx expo start` tourne.');
+    throw new Error(errors.unreachable);
   }
 
   // Validation and configuration errors come back as plain JSON, before any streaming.
   if (!response.ok || !response.body) {
     const data: { error?: string } = await response.json().catch(() => ({}));
-    throw new Error(data.error ?? `Le serveur a répondu avec une erreur (${response.status}).`);
+    throw new Error(data.error ?? errors.server(response.status));
   }
 
   const reader = response.body.getReader();
@@ -87,7 +90,7 @@ export async function askMentor(
     }
 
     if (done) {
-      throw new Error('La réponse du mentor a été interrompue. Réessaie.');
+      throw new Error(errors.interrupted);
     }
   }
 }

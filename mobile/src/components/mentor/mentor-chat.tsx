@@ -16,37 +16,15 @@ import { ThemedView } from '@/components/themed-view';
 import { Button } from '@/components/ui/button';
 import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { useI18n } from '@/i18n';
 import { askMentor, MAX_MESSAGE_LENGTH, type LessonRef, type MentorMessage } from '@/utils/mentor-api';
-
-const WELCOME: MentorMessage = {
-  role: 'assistant',
-  content:
-    'Salut ! Je suis ton mentor. Pose-moi une question sur ton code ou sur une leçon, et je t’explique pas à pas.',
-};
-
-const LESSON_WELCOME: MentorMessage = {
-  role: 'assistant',
-  content: 'Je connais la leçon que tu es en train de suivre. Qu’est-ce qui te bloque ?',
-};
-
-const generalSuggestions = [
-  'Explique-moi une boucle for',
-  'Pourquoi mon code ne marche pas ?',
-  'Donne-moi un exercice facile',
-];
-
-const lessonSuggestions = [
-  'Explique-moi cette leçon autrement',
-  'Donne-moi un autre exemple',
-  'Aide-moi pour le quiz sans me donner la réponse',
-];
 
 type MentorChatProps = {
   /** When set, the mentor answers in the context of this lesson. */
   lesson?: LessonRef;
   /** Shown under the title, e.g. the lesson name. */
   subtitle?: string;
-  /** When set, a "Fermer" button is shown in the header. */
+  /** When set, a close button is shown in the header. */
   onClose?: () => void;
   /** Room to leave under the composer (tab bar or bottom safe area). */
   bottomPadding: number;
@@ -55,6 +33,7 @@ type MentorChatProps = {
 
 export function MentorChat({ lesson, subtitle, onClose, bottomPadding, safeAreaEdges }: MentorChatProps) {
   const theme = useTheme();
+  const { language, t } = useI18n();
   const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
   const [messages, setMessages] = useState<MentorMessage[]>([]);
   const [draft, setDraft] = useState('');
@@ -63,7 +42,8 @@ export function MentorChat({ lesson, subtitle, onClose, bottomPadding, safeAreaE
   const [partialReply, setPartialReply] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const suggestions = lesson ? lessonSuggestions : generalSuggestions;
+  const suggestions = lesson ? t.mentor.lessonSuggestions : t.mentor.suggestions;
+  const welcome: MentorMessage = { role: 'assistant', content: lesson ? t.mentor.lessonWelcome : t.mentor.welcome };
 
   async function send(text: string) {
     const question = text.trim();
@@ -77,14 +57,14 @@ export function MentorChat({ lesson, subtitle, onClose, bottomPadding, safeAreaE
     setError(null);
     setIsLoading(true);
     try {
-      const reply = await askMentor(history, setPartialReply, lesson);
+      const reply = await askMentor(history, setPartialReply, { language, lesson });
       setMessages([...history, { role: 'assistant', content: reply }]);
     } catch (e) {
       // Drop the unanswered question (and any partial reply) so the history keeps alternating,
       // and give the question back for a retry.
       setMessages(messages);
       setDraft(question);
-      setError(e instanceof Error ? e.message : 'Une erreur est survenue.');
+      setError(e instanceof Error ? e.message : t.mentorErrors.generic);
     } finally {
       setPartialReply(null);
       setIsLoading(false);
@@ -105,7 +85,7 @@ export function MentorChat({ lesson, subtitle, onClose, bottomPadding, safeAreaE
           <View style={styles.header}>
             <View style={styles.titleBlock}>
               <ThemedText role="heading" style={styles.title}>
-                Mentor IA
+                {t.mentor.title}
               </ThemedText>
               {subtitle && (
                 <ThemedText type="small" themeColor="textSecondary" numberOfLines={1}>
@@ -115,13 +95,13 @@ export function MentorChat({ lesson, subtitle, onClose, bottomPadding, safeAreaE
             </View>
             {messages.length > 0 && !isLoading && (
               <Button
-                title="Recommencer"
-                accessibilityLabel="Nouvelle conversation"
+                title={t.mentor.startOver}
+                accessibilityLabel={t.mentor.startOverLabel}
                 variant="ghost"
                 onPress={startOver}
               />
             )}
-            {onClose && <Button title="Fermer" variant="ghost" onPress={onClose} />}
+            {onClose && <Button title={t.common.close} variant="ghost" onPress={onClose} />}
           </View>
 
           <ScrollView
@@ -130,7 +110,7 @@ export function MentorChat({ lesson, subtitle, onClose, bottomPadding, safeAreaE
             contentContainerStyle={styles.messages}
             keyboardShouldPersistTaps="handled"
             onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: true })}>
-            <MessageBubble message={lesson ? LESSON_WELCOME : WELCOME} />
+            <MessageBubble message={welcome} />
             {messages.map((message, index) => (
               <MessageBubble key={index} message={message} />
             ))}
@@ -141,7 +121,7 @@ export function MentorChat({ lesson, subtitle, onClose, bottomPadding, safeAreaE
               <View style={styles.thinking} accessibilityLiveRegion="polite">
                 <ActivityIndicator color={theme.primary} />
                 <ThemedText type="small" themeColor="textSecondary">
-                  Le mentor réfléchit…
+                  {t.mentor.thinking}
                 </ThemedText>
               </View>
             )}
@@ -155,7 +135,7 @@ export function MentorChat({ lesson, subtitle, onClose, bottomPadding, safeAreaE
             {messages.length === 0 && !isLoading && (
               <View style={styles.suggestions}>
                 <ThemedText type="small" themeColor="textSecondary">
-                  Questions suggérées
+                  {t.mentor.suggestionsTitle}
                 </ThemedText>
                 {suggestions.map((suggestion) => (
                   <Button key={suggestion} title={suggestion} variant="secondary" onPress={() => send(suggestion)} />
@@ -168,21 +148,21 @@ export function MentorChat({ lesson, subtitle, onClose, bottomPadding, safeAreaE
             <TextInput
               value={draft}
               onChangeText={setDraft}
-              placeholder="Pose ta question…"
+              placeholder={t.mentor.placeholder}
               placeholderTextColor={theme.textSecondary}
               multiline
               maxLength={MAX_MESSAGE_LENGTH}
               editable={!isLoading}
-              accessibilityLabel="Ta question pour le mentor"
+              accessibilityLabel={t.mentor.inputLabel}
               style={[
                 styles.input,
                 { color: theme.text, backgroundColor: theme.backgroundElement, borderColor: theme.border },
               ]}
             />
-            <Button title="Envoyer" disabled={!draft.trim() || isLoading} onPress={() => send(draft)} />
+            <Button title={t.mentor.send} disabled={!draft.trim() || isLoading} onPress={() => send(draft)} />
           </View>
           <ThemedText type="small" themeColor="textSecondary" style={styles.disclaimer}>
-            Le mentor est une IA : ses réponses peuvent contenir des erreurs.
+            {t.mentor.disclaimer}
           </ThemedText>
         </KeyboardAvoidingView>
       </SafeAreaView>

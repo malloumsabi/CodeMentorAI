@@ -5,6 +5,7 @@ import { useColorScheme } from 'react-native';
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import { Colors } from '@/constants/theme';
 import { ProgressProvider } from '@/hooks/use-progress';
+import { I18nProvider, useI18n } from '@/i18n';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -31,18 +32,29 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={getNavigationTheme(colorScheme)}>
-      <ProgressProvider>
-        <AnimatedSplashOverlay />
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="course/[courseId]" options={{ headerBackTitle: 'Retour' }} />
-          <Stack.Screen name="lesson/[courseId]/[lessonId]" options={{ headerBackTitle: 'Retour' }} />
-          <Stack.Screen
-            name="lesson/[courseId]/[lessonId]/mentor"
-            options={{ presentation: 'modal', headerShown: false }}
-          />
-        </Stack>
-      </ProgressProvider>
+      <I18nProvider>
+        <ProgressProvider>
+          <AnimatedSplashOverlay />
+          <RootStack />
+        </ProgressProvider>
+      </I18nProvider>
     </ThemeProvider>
+  );
+}
+
+/** Separate component so the header texts can use the current language. */
+function RootStack() {
+  const { t } = useI18n();
+
+  return (
+    <Stack>
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="course/[courseId]" options={{ headerBackTitle: t.common.back }} />
+      <Stack.Screen name="lesson/[courseId]/[lessonId]" options={{ headerBackTitle: t.common.back }} />
+      <Stack.Screen
+        name="lesson/[courseId]/[lessonId]/mentor"
+        options={{ presentation: 'modal', headerShown: false }}
+      />
+    </Stack>
   );
 }

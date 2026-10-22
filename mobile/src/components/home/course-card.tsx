@@ -7,6 +7,7 @@ import { ProgressBar } from '@/components/ui/progress-bar';
 import { Radius, Spacing } from '@/constants/theme';
 import { getCourseProgress, type Course } from '@/data/courses';
 import { useTheme } from '@/hooks/use-theme';
+import { useI18n } from '@/i18n';
 
 type CourseCardProps = {
   course: Course;
@@ -16,11 +17,13 @@ export function CourseCard({ course }: CourseCardProps) {
   const theme = useTheme();
   const progress = getCourseProgress(course);
   const isFinished = course.lessonsCompleted === course.lessonsTotal;
+  const { t } = useI18n();
+  const level = t.levels[course.level];
 
   return (
     <Pressable
       role="button"
-      accessibilityLabel={`${course.title}, ${course.level}. Voir les leçons du parcours`}
+      accessibilityLabel={t.courseCard.accessibilityLabel(course.title, level)}
       onPress={() => router.push({ pathname: '/course/[courseId]', params: { courseId: course.id } })}
       style={({ pressed }) => pressed && styles.pressed}>
       <Card>
@@ -35,7 +38,7 @@ export function CourseCard({ course }: CourseCardProps) {
               {course.title}
             </ThemedText>
             <ThemedText type="small" themeColor="textSecondary">
-              {course.level}
+              {level}
             </ThemedText>
           </View>
         </View>
@@ -43,12 +46,12 @@ export function CourseCard({ course }: CourseCardProps) {
         <ProgressBar
           progress={progress}
           color={isFinished ? 'success' : 'primary'}
-          accessibilityLabel={`Progression ${course.title}`}
+          accessibilityLabel={t.common.progressOf(course.title)}
         />
         <ThemedText type="small" themeColor="textSecondary">
           {course.lessonsCompleted === 0
-            ? `${course.lessonsTotal} leçons · Pas encore commencé`
-            : `${course.lessonsCompleted}/${course.lessonsTotal} leçons`}
+            ? t.courseCard.notStarted(course.lessonsTotal)
+            : t.courseCard.lessonsDone(course.lessonsCompleted, course.lessonsTotal)}
         </ThemedText>
       </Card>
     </Pressable>

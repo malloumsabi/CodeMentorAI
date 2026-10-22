@@ -4,6 +4,7 @@ import { CodeBlock } from '@/components/lesson/code-block';
 import { ThemedText } from '@/components/themed-text';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { useI18n } from '@/i18n';
 import type { MentorMessage } from '@/utils/mentor-api';
 
 type Segment = { type: 'text' | 'code'; value: string };
@@ -22,6 +23,7 @@ function splitCode(content: string): Segment[] {
 
 export function MessageBubble({ message }: { message: MentorMessage }) {
   const theme = useTheme();
+  const { t } = useI18n();
   const isUser = message.role === 'user';
 
   if (isUser) {
@@ -37,7 +39,7 @@ export function MessageBubble({ message }: { message: MentorMessage }) {
   return (
     <View style={[styles.bubble, styles.mentorBubble, { backgroundColor: theme.backgroundElement }]}>
       <ThemedText type="smallBold" themeColor="accent">
-        Mentor
+        {t.mentor.author}
       </ThemedText>
       {splitCode(message.content).map((segment, index) =>
         segment.type === 'code' ? (

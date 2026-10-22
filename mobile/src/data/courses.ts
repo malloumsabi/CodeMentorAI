@@ -2,10 +2,13 @@
  * Placeholder data until the app is connected to a backend.
  */
 
-import { lessonsByCourse, type Lesson } from '@/data/lessons';
+import type { Language, Localized } from '@/i18n/languages';
+import { lessonsByCourse, localizeLesson, type Lesson } from '@/data/lessons';
 
-export type CourseLevel = 'Débutant' | 'Intermédiaire' | 'Avancé';
+/** Displayed through the `levels` texts of the current language. */
+export type CourseLevel = 'beginner' | 'intermediate' | 'advanced';
 
+/** A course resolved to one language: what the screens use. */
 export type Course = {
   id: string;
   title: string;
@@ -19,20 +22,54 @@ export type Course = {
   lessonsTotal: number;
 };
 
-type CourseInfo = Omit<Course, 'lessons' | 'lessonsTotal'>;
+type CourseInfo = Omit<Course, 'title' | 'lessons' | 'lessonsTotal'> & { title: Localized };
 
 /** `lessonsCompleted` values are demo defaults, replaced by the saved progress once the user starts. */
 const courseInfos: CourseInfo[] = [
-  { id: 'python-basics', title: 'Les bases de Python', badge: 'Py', level: 'Débutant', lessonsCompleted: 2 },
-  { id: 'javascript-essentials', title: 'JavaScript essentiel', badge: 'JS', level: 'Débutant', lessonsCompleted: 1 },
-  { id: 'html-css', title: 'HTML & CSS', badge: '</>', level: 'Débutant', lessonsCompleted: 0 },
-  { id: 'algorithms', title: 'Algorithmique', badge: 'Algo', level: 'Intermédiaire', lessonsCompleted: 0 },
+  {
+    id: 'python-basics',
+    title: { fr: 'Les bases de Python', en: 'Python basics', tr: 'Python temelleri' },
+    badge: 'Py',
+    level: 'beginner',
+    lessonsCompleted: 2,
+  },
+  {
+    id: 'javascript-essentials',
+    title: { fr: 'JavaScript essentiel', en: 'JavaScript essentials', tr: 'Temel JavaScript' },
+    badge: 'JS',
+    level: 'beginner',
+    lessonsCompleted: 1,
+  },
+  {
+    id: 'html-css',
+    title: { fr: 'HTML & CSS', en: 'HTML & CSS', tr: 'HTML ve CSS' },
+    badge: '</>',
+    level: 'beginner',
+    lessonsCompleted: 0,
+  },
+  {
+    id: 'algorithms',
+    title: { fr: 'Algorithmique', en: 'Algorithms', tr: 'Algoritmalar' },
+    badge: 'Algo',
+    level: 'intermediate',
+    lessonsCompleted: 0,
+  },
 ];
 
-export const courses: Course[] = courseInfos.map((info) => {
-  const lessons = lessonsByCourse[info.id] ?? [];
-  return { ...info, lessons, lessonsTotal: lessons.length };
-});
+const coursesByLanguage = new Map<Language, Course[]>();
+
+/** Every course, with titles, lessons and quizzes in the given language. */
+export function getCourses(language: Language): Course[] {
+  let list = coursesByLanguage.get(language);
+  if (!list) {
+    list = courseInfos.map((info) => {
+      const lessons = (lessonsByCourse[info.id] ?? []).map((lesson) => localizeLesson(lesson, language));
+      return { ...info, title: info.title[language], lessons, lessonsTotal: lessons.length };
+    });
+    coursesByLanguage.set(language, list);
+  }
+  return list;
+}
 
 export function getCourseProgress(course: Course) {
   return course.lessonsTotal === 0 ? 0 : course.lessonsCompleted / course.lessonsTotal;
