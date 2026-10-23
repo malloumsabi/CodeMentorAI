@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { IconButton } from '@/components/ui/icon-button';
 import { Fonts, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
+import { useSavedConversation } from '@/hooks/use-saved-conversation';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { askMentor, MAX_MESSAGE_LENGTH, type LessonRef, type MentorMessage } from '@/utils/mentor-api';
@@ -38,7 +39,7 @@ export function MentorChat({ lesson, subtitle, onClose, bottomPadding, safeAreaE
   const theme = useTheme();
   const { language, t } = useI18n();
   const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
-  const [messages, setMessages] = useState<MentorMessage[]>([]);
+  const { messages, setMessages, isLoaded } = useSavedConversation(lesson);
   const [draft, setDraft] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   /** The reply being streamed, shown as it arrives; null when no reply is in progress. */
@@ -47,11 +48,11 @@ export function MentorChat({ lesson, subtitle, onClose, bottomPadding, safeAreaE
 
   const suggestions = lesson ? t.mentor.lessonSuggestions : t.mentor.suggestions;
   const welcome: MentorMessage = { role: 'assistant', content: lesson ? t.mentor.lessonWelcome : t.mentor.welcome };
-  const canSend = draft.trim().length > 0 && !isLoading;
+  const canSend = draft.trim().length > 0 && !isLoading && isLoaded;
 
   async function send(text: string) {
     const question = text.trim();
-    if (!question || isLoading) {
+    if (!question || isLoading || !isLoaded) {
       return;
     }
 
@@ -134,7 +135,7 @@ export function MentorChat({ lesson, subtitle, onClose, bottomPadding, safeAreaE
               </ThemedText>
             )}
 
-            {messages.length === 0 && !isLoading && (
+            {isLoaded && messages.length === 0 && !isLoading && (
               <View style={styles.suggestions} accessibilityLabel={t.mentor.suggestionsTitle}>
                 {suggestions.map((suggestion) => (
                   <Pressable
