@@ -172,6 +172,17 @@ const courseInfos: CourseInfo[] = [
     level: 'intermediate',
   },
   {
+    id: 'kbu-blm320',
+    title: {
+      fr: 'Architecture des ordinateurs (BLM320)',
+      en: 'Computer Architecture (BLM320)',
+      tr: 'Bilgisayar Mimarisi (BLM320)',
+    },
+    badge: 'CPU',
+    group: 'year3',
+    level: 'advanced',
+  },
+  {
     id: 'kbu-blm322',
     title: { fr: 'Théorie des automates (BLM322)', en: 'Automata Theory (BLM322)', tr: 'Otomata Teorisi (BLM322)' },
     badge: 'DFA',

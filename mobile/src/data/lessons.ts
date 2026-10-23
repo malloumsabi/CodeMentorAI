@@ -4,6 +4,7 @@
  */
 
 import { blm113Lessons } from '@/data/kbu/blm113';
+import { blm320Lessons } from '@/data/kbu/blm320';
 import { blm322Lessons } from '@/data/kbu/blm322';
 import { kbuLessonsByCourse } from '@/data/kbu-lessons';
 import type { Language, Localized } from '@/i18n/languages';
@@ -686,5 +687,6 @@ export const lessonsByCourse: Record<string, LessonSource[]> = {
   ],
   ...kbuLessonsByCourse,
   'kbu-blm113': blm113Lessons,
+  'kbu-blm320': blm320Lessons,
   'kbu-blm322': blm322Lessons,
 };
