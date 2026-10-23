@@ -201,6 +201,17 @@ const courseInfos: CourseInfo[] = [
     level: 'intermediate',
   },
   {
+    id: 'kbu-ml',
+    title: {
+      fr: 'Introduction à l’apprentissage automatique',
+      en: 'Introduction to Machine Learning',
+      tr: 'Makine Öğrenmesine Giriş',
+    },
+    badge: 'ML',
+    group: 'year3',
+    level: 'intermediate',
+  },
+  {
     id: 'kbu-blm431',
     title: { fr: 'Intelligence artificielle (BLM431)', en: 'Artificial Intelligence (BLM431)', tr: 'Yapay Zeka (BLM431)' },
     badge: 'AI',
