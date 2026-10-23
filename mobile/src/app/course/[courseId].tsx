@@ -5,9 +5,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LessonRow, type LessonStatus } from '@/components/course/lesson-row';
 import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 import { ProgressBar } from '@/components/ui/progress-bar';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
-import { getCourseProgress, getNextLesson } from '@/data/courses';
+import { getCourseProgress, getNextLesson, MIDTERM_LAST_WEEK } from '@/data/courses';
 import { useCourses } from '@/hooks/use-progress';
 import { useI18n } from '@/i18n';
 
@@ -38,12 +39,28 @@ export default function CourseScreen() {
       params: { courseId: course.id, lessonId },
     });
 
-  const getStatus = (index: number): LessonStatus => {
-    if (index < course.lessonsCompleted) {
+  const getStatus = (lessonId: string): LessonStatus => {
+    if (course.completedLessonIds.includes(lessonId)) {
       return 'done';
     }
-    return index === course.lessonsCompleted ? 'next' : 'locked';
+    return lessonId === nextLesson?.id ? 'next' : 'todo';
   };
+
+  // Courses that follow the semester are split into the midterm and final weeks.
+  const isWeekly = course.lessons.some((lesson) => lesson.week !== undefined);
+  const lastWeek = Math.max(0, ...course.lessons.map((lesson) => lesson.week ?? 0));
+  const sections = isWeekly
+    ? [
+        {
+          title: t.course.midtermSection(1, MIDTERM_LAST_WEEK),
+          lessons: course.lessons.filter((lesson) => (lesson.week ?? 0) <= MIDTERM_LAST_WEEK),
+        },
+        {
+          title: t.course.finalSection(MIDTERM_LAST_WEEK + 1, lastWeek),
+          lessons: course.lessons.filter((lesson) => (lesson.week ?? 0) > MIDTERM_LAST_WEEK),
+        },
+      ].filter((section) => section.lessons.length > 0)
+    : [{ title: null, lessons: course.lessons }];
 
   return (
     <ScrollView contentContainerStyle={contentStyle}>
@@ -73,17 +90,20 @@ export default function CourseScreen() {
         />
       )}
 
-      <View style={styles.list}>
-        {course.lessons.map((lesson, index) => (
-          <LessonRow
-            key={lesson.id}
-            number={index + 1}
-            title={lesson.title}
-            status={getStatus(index)}
-            onPress={() => openLesson(lesson.id)}
-          />
-        ))}
-      </View>
+      {sections.map((section) => (
+        <View key={section.title ?? 'lessons'} style={styles.list}>
+          {section.title && <Label>{section.title}</Label>}
+          {section.lessons.map((lesson) => (
+            <LessonRow
+              key={lesson.id}
+              number={lesson.week ?? course.lessons.indexOf(lesson) + 1}
+              title={lesson.title}
+              status={getStatus(lesson.id)}
+              onPress={() => openLesson(lesson.id)}
+            />
+          ))}
+        </View>
+      ))}
     </ScrollView>
   );
 }

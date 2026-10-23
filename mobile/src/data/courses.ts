@@ -21,16 +21,21 @@ export type Course = {
   /** Only used to sort courses: every course is open to every student. */
   group: CourseGroup;
   level: CourseLevel;
-  /** Lessons are completed in order: the first `lessonsCompleted` ones are done. */
+  /** Lessons can be completed in any order; always equal to `completedLessonIds.length`. */
   lessonsCompleted: number;
+  completedLessonIds: readonly string[];
   lessons: Lesson[];
   /** Always equal to `lessons.length`. */
   lessonsTotal: number;
 };
 
-type CourseInfo = Omit<Course, 'title' | 'lessons' | 'lessonsTotal'> & { title: Localized };
+/** Courses that follow the semester: weeks up to this one prepare the midterm (vize), the others the final. */
+export const MIDTERM_LAST_WEEK = 7;
 
-/** `lessonsCompleted` is where a new student starts (0); the saved progress replaces it. */
+type CourseInfo = Omit<Course, 'title' | 'lessons' | 'lessonsTotal' | 'lessonsCompleted' | 'completedLessonIds'> & {
+  title: Localized;
+};
+
 const courseInfos: CourseInfo[] = [
   {
     id: 'python-basics',
@@ -38,7 +43,6 @@ const courseInfos: CourseInfo[] = [
     badge: 'Py',
     group: 'basics',
     level: 'beginner',
-    lessonsCompleted: 0,
   },
   {
     id: 'javascript-essentials',
@@ -46,7 +50,6 @@ const courseInfos: CourseInfo[] = [
     badge: 'JS',
     group: 'basics',
     level: 'beginner',
-    lessonsCompleted: 0,
   },
   {
     id: 'html-css',
@@ -54,7 +57,6 @@ const courseInfos: CourseInfo[] = [
     badge: '</>',
     group: 'basics',
     level: 'beginner',
-    lessonsCompleted: 0,
   },
   {
     id: 'algorithms',
@@ -62,7 +64,6 @@ const courseInfos: CourseInfo[] = [
     badge: 'Algo',
     group: 'basics',
     level: 'intermediate',
-    lessonsCompleted: 0,
   },
   // Karabük University computer engineering courses, in curriculum order.
   {
@@ -71,7 +72,6 @@ const courseInfos: CourseInfo[] = [
     badge: 'C',
     group: 'year1',
     level: 'beginner',
-    lessonsCompleted: 0,
   },
   {
     id: 'kbu-blm112',
@@ -79,7 +79,6 @@ const courseInfos: CourseInfo[] = [
     badge: 'C II',
     group: 'year1',
     level: 'intermediate',
-    lessonsCompleted: 0,
   },
   {
     id: 'kbu-cme225',
@@ -91,7 +90,6 @@ const courseInfos: CourseInfo[] = [
     badge: 'Java',
     group: 'year2',
     level: 'intermediate',
-    lessonsCompleted: 0,
   },
   {
     id: 'kbu-cme227',
@@ -99,7 +97,6 @@ const courseInfos: CourseInfo[] = [
     badge: 'DS',
     group: 'year2',
     level: 'intermediate',
-    lessonsCompleted: 0,
   },
   {
     id: 'kbu-blm221',
@@ -107,7 +104,6 @@ const courseInfos: CourseInfo[] = [
     badge: 'Bool',
     group: 'year2',
     level: 'beginner',
-    lessonsCompleted: 0,
   },
   {
     id: 'kbu-cme226',
@@ -119,7 +115,6 @@ const courseInfos: CourseInfo[] = [
     badge: 'SQL',
     group: 'year2',
     level: 'beginner',
-    lessonsCompleted: 0,
   },
   {
     id: 'kbu-cme228',
@@ -131,7 +126,6 @@ const courseInfos: CourseInfo[] = [
     badge: 'PHP',
     group: 'year2',
     level: 'beginner',
-    lessonsCompleted: 0,
   },
   {
     id: 'kbu-blm220',
@@ -143,7 +137,6 @@ const courseInfos: CourseInfo[] = [
     badge: 'Math',
     group: 'year2',
     level: 'intermediate',
-    lessonsCompleted: 0,
   },
   {
     id: 'kbu-cme324',
@@ -155,7 +148,6 @@ const courseInfos: CourseInfo[] = [
     badge: 'OS',
     group: 'year3',
     level: 'intermediate',
-    lessonsCompleted: 0,
   },
   {
     id: 'kbu-cme326',
@@ -167,7 +159,13 @@ const courseInfos: CourseInfo[] = [
     badge: 'Net',
     group: 'year3',
     level: 'intermediate',
-    lessonsCompleted: 0,
+  },
+  {
+    id: 'kbu-blm322',
+    title: { fr: 'Théorie des automates (BLM322)', en: 'Automata Theory (BLM322)', tr: 'Otomata Teorisi (BLM322)' },
+    badge: 'DFA',
+    group: 'year3',
+    level: 'advanced',
   },
   {
     id: 'kbu-blm431',
@@ -175,7 +173,6 @@ const courseInfos: CourseInfo[] = [
     badge: 'AI',
     group: 'year4',
     level: 'intermediate',
-    lessonsCompleted: 0,
   },
   {
     id: 'kbu-blm446',
@@ -187,7 +184,6 @@ const courseInfos: CourseInfo[] = [
     badge: 'Sec',
     group: 'year4',
     level: 'intermediate',
-    lessonsCompleted: 0,
   },
 ];
 
@@ -199,7 +195,14 @@ export function getCourses(language: Language): Course[] {
   if (!list) {
     list = courseInfos.map((info) => {
       const lessons = (lessonsByCourse[info.id] ?? []).map((lesson) => localizeLesson(lesson, language));
-      return { ...info, title: info.title[language], lessons, lessonsTotal: lessons.length };
+      return {
+        ...info,
+        title: info.title[language],
+        lessons,
+        lessonsTotal: lessons.length,
+        lessonsCompleted: 0,
+        completedLessonIds: [],
+      };
     });
     coursesByLanguage.set(language, list);
   }
@@ -210,9 +213,9 @@ export function getCourseProgress(course: Course) {
   return course.lessonsTotal === 0 ? 0 : course.lessonsCompleted / course.lessonsTotal;
 }
 
-/** The next lesson to do, or undefined when the course is finished. */
+/** The first lesson not done yet, or undefined when the course is finished. */
 export function getNextLesson(course: Course): Lesson | undefined {
-  return course.lessons[course.lessonsCompleted];
+  return course.lessons.find((lesson) => !course.completedLessonIds.includes(lesson.id));
 }
 
 /** The course to resume first: the most advanced one that is started but not finished. */

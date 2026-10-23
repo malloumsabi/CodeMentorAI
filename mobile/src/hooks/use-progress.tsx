@@ -8,11 +8,33 @@ import { DEFAULT_LANGUAGE } from '@/i18n/languages';
 /** Progress only depends on course and lesson ids, which are the same in every language. */
 const courses = getCourses(DEFAULT_LANGUAGE);
 
-/** Bump the version suffix if the stored shape or meaning changes (v1 counted lessons of the old 15–24 lesson demo courses). */
-const STORAGE_KEY = 'codementor/progress/v2';
+/** Bump the version suffix if the stored shape or meaning changes (v2 counted lessons done in order). */
+const STORAGE_KEY = 'codementor/progress/v3';
+const V2_STORAGE_KEY = 'codementor/progress/v2';
 
-/** Number of completed lessons, by course id. Courses without an entry keep their default value. */
-type Progress = Record<string, number>;
+/** Ids of the completed lessons, by course id, in the order they were completed. */
+type Progress = Record<string, string[]>;
+
+/** v2 stored how many lessons were done in order: those are the first lessons of each course. */
+function migrateV2(stored: Record<string, number>): Progress {
+  const progress: Progress = {};
+  for (const course of courses) {
+    const count = stored[course.id];
+    if (typeof count === 'number' && count > 0) {
+      progress[course.id] = course.lessons.slice(0, count).map((lesson) => lesson.id);
+    }
+  }
+  return progress;
+}
+
+async function loadProgress(): Promise<Progress | null> {
+  const stored = await AsyncStorage.getItem(STORAGE_KEY);
+  if (stored) {
+    return JSON.parse(stored);
+  }
+  const storedV2 = await AsyncStorage.getItem(V2_STORAGE_KEY);
+  return storedV2 ? migrateV2(JSON.parse(storedV2)) : null;
+}
 
 type ProgressContextValue = {
   progress: Progress;
@@ -28,38 +50,32 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY)
+    loadProgress()
       .then((stored) => {
         if (stored) {
-          setProgress(JSON.parse(stored));
+          setProgress(stored);
         }
       })
       .catch((error) => console.warn('Could not load progress', error))
       .finally(() => setIsLoaded(true));
   }, []);
 
+  /** Lessons can be completed in any order; completing one again changes nothing. */
   function completeLesson(courseId: string, lessonId: string) {
     const course = courses.find((item) => item.id === courseId);
+    const done = progress[courseId] ?? [];
     // Saving before the stored progress is loaded would overwrite it.
-    if (!course || !isLoaded) {
+    if (!isLoaded || !course?.lessons.some((lesson) => lesson.id === lessonId) || done.includes(lessonId)) {
       return;
     }
-
-    const completed = progress[courseId] ?? course.lessonsCompleted;
-    // Lessons are completed in order: reviewing an already completed lesson changes nothing.
-    if (course.lessons.findIndex((lesson) => lesson.id === lessonId) !== completed) {
-      return;
-    }
-
-    saveProgress({ ...progress, [courseId]: completed + 1 });
+    saveProgress({ ...progress, [courseId]: [...done, lessonId] });
   }
 
-  /** Sets every course to 0, including those with demo progress. */
   function resetProgress() {
     if (!isLoaded) {
       return;
     }
-    saveProgress(Object.fromEntries(courses.map((course) => [course.id, 0])));
+    saveProgress({});
   }
 
   function saveProgress(next: Progress) {
@@ -89,9 +105,9 @@ export function useCourses(): Course[] {
   const { progress } = useProgress();
   const { language } = useI18n();
 
-  return getCourses(language).map((course) =>
-    course.id in progress
-      ? { ...course, lessonsCompleted: Math.min(progress[course.id], course.lessonsTotal) }
-      : course
-  );
+  return getCourses(language).map((course) => {
+    // Ignore lessons that no longer exist, so the counts stay within the course.
+    const done = (progress[course.id] ?? []).filter((id) => course.lessons.some((lesson) => lesson.id === id));
+    return done.length > 0 ? { ...course, completedLessonIds: done, lessonsCompleted: done.length } : course;
+  });
 }

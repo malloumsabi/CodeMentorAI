@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { CodeBlock } from '@/components/lesson/code-block';
+import { ExerciseCard } from '@/components/lesson/exercise-card';
 import { PracticeQuiz } from '@/components/lesson/practice-quiz';
 import { QuizCard } from '@/components/lesson/quiz-card';
 import { ThemedText } from '@/components/themed-text';
@@ -37,18 +38,8 @@ export default function LessonScreen() {
     );
   }
 
-  if (lessonIndex > course.lessonsCompleted) {
-    return (
-      <ScrollView contentContainerStyle={contentStyle}>
-        <Stack.Screen options={{ title: course.title }} />
-        <ThemedText type="heading">{t.lesson.locked}</ThemedText>
-        <ThemedText themeColor="textSecondary">{t.lesson.lockedHint(course.title)}</ThemedText>
-        <Button title={t.common.back} variant="secondary" onPress={() => router.back()} />
-      </ScrollView>
-    );
-  }
-
-  const isReview = lessonIndex < course.lessonsCompleted;
+  // Every lesson is open: a completed one is shown as a review.
+  const isReview = course.completedLessonIds.includes(lesson.id);
   const followingLesson = course.lessons[lessonIndex + 1];
 
   const finishLesson = () => {
@@ -75,7 +66,9 @@ export default function LessonScreen() {
 
       <View style={styles.header}>
         <ThemedText type="small" themeColor={isReview ? 'success' : 'textSecondary'}>
-          {t.lesson.counter(lessonIndex + 1, course.lessonsTotal)}
+          {lesson.week
+            ? t.lesson.weekCounter(lesson.week, course.lessonsTotal)
+            : t.lesson.counter(lessonIndex + 1, course.lessonsTotal)}
           {isReview ? t.lesson.alreadyDone : ''}
         </ThemedText>
         <ThemedText role="heading" type="heading">
@@ -87,13 +80,22 @@ export default function LessonScreen() {
         />
       </View>
 
-      {lesson.blocks.map((block, index) =>
-        block.type === 'code' ? (
-          <CodeBlock key={index} code={block.code} />
-        ) : (
-          <ThemedText key={index}>{block.text}</ThemedText>
-        )
-      )}
+      {lesson.blocks.map((block, index) => {
+        switch (block.type) {
+          case 'code':
+            return <CodeBlock key={index} code={block.code} />;
+          case 'heading':
+            return (
+              <ThemedText key={index} role="heading" type="section" style={styles.blockHeading}>
+                {block.text}
+              </ThemedText>
+            );
+          case 'exercise':
+            return <ExerciseCard key={index} question={block.question} code={block.code} solution={block.solution} />;
+          default:
+            return <ThemedText key={index}>{block.text}</ThemedText>;
+        }
+      })}
 
       <Button
         title={t.lesson.askMentor}
@@ -131,5 +133,8 @@ const styles = StyleSheet.create({
   header: {
     gap: Spacing.two,
     marginBottom: Spacing.two,
+  },
+  blockHeading: {
+    marginTop: Spacing.two,
   },
 });

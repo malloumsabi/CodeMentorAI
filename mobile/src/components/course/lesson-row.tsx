@@ -5,7 +5,8 @@ import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 
-export type LessonStatus = 'done' | 'next' | 'locked';
+/** Every lesson is open: 'next' is only the suggested one. */
+export type LessonStatus = 'done' | 'next' | 'todo';
 
 type LessonRowProps = {
   number: number;
@@ -17,7 +18,6 @@ type LessonRowProps = {
 export function LessonRow({ number, title, status, onPress }: LessonRowProps) {
   const theme = useTheme();
   const { t } = useI18n();
-  const isLocked = status === 'locked';
   const statusLabel = t.lessonRow[status];
 
   const circleColor = status === 'done' ? theme.success : status === 'next' ? theme.primary : theme.backgroundSelected;
@@ -26,8 +26,6 @@ export function LessonRow({ number, title, status, onPress }: LessonRowProps) {
     <Pressable
       role="button"
       accessibilityLabel={t.lessonRow.accessibilityLabel(number, title, statusLabel)}
-      accessibilityState={{ disabled: isLocked }}
-      disabled={isLocked}
       onPress={onPress}
       style={({ pressed }) => [
         styles.row,
@@ -36,10 +34,9 @@ export function LessonRow({ number, title, status, onPress }: LessonRowProps) {
           borderColor: status === 'next' ? theme.primary : theme.border,
         },
         pressed && styles.pressed,
-        isLocked && styles.locked,
       ]}>
       <View style={[styles.circle, { backgroundColor: circleColor }]}>
-        <ThemedText type="smallBold" themeColor={isLocked ? 'textSecondary' : 'onPrimary'}>
+        <ThemedText type="smallBold" themeColor={status === 'todo' ? 'textSecondary' : 'onPrimary'}>
           {status === 'done' ? '✓' : number}
         </ThemedText>
       </View>
@@ -79,8 +76,5 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.8,
-  },
-  locked: {
-    opacity: 0.6,
   },
 });

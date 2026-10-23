@@ -3,13 +3,20 @@
  * Screens never read this directly: `getCourses(language)` resolves it to plain texts.
  */
 
+import { blm322Lessons } from '@/data/kbu/blm322';
 import { kbuLessonsByCourse } from '@/data/kbu-lessons';
 import type { Language, Localized } from '@/i18n/languages';
 
 /** A text that is either the same in every language (some code) or written per language. */
 type MaybeLocalized = string | Localized;
 
-type LessonBlockSource = { type: 'text'; text: Localized } | { type: 'code'; code: MaybeLocalized };
+type LessonBlockSource =
+  | { type: 'text'; text: Localized }
+  | { type: 'code'; code: MaybeLocalized }
+  /** A subtitle inside the lesson, e.g. "Example". */
+  | { type: 'heading'; text: Localized }
+  /** An exam-style exercise, with its solution hidden until the student asks for it. */
+  | { type: 'exercise'; question: Localized; code?: MaybeLocalized; solution: Localized };
 
 type QuizSource = {
   question: Localized;
@@ -21,13 +28,19 @@ type QuizSource = {
 
 export type LessonSource = {
   id: string;
+  /** Week of the semester (1–14) for courses that follow the university calendar. */
+  week?: number;
   title: Localized;
   blocks: LessonBlockSource[];
   quiz: QuizSource;
 };
 
 /** Lesson resolved to one language: what the screens use. */
-export type LessonBlock = { type: 'text'; text: string } | { type: 'code'; code: string };
+export type LessonBlock =
+  | { type: 'text'; text: string }
+  | { type: 'code'; code: string }
+  | { type: 'heading'; text: string }
+  | { type: 'exercise'; question: string; code?: string; solution: string };
 
 export type Quiz = {
   question: string;
@@ -39,6 +52,7 @@ export type Quiz = {
 
 export type Lesson = {
   id: string;
+  week?: number;
   title: string;
   blocks: LessonBlock[];
   quiz: Quiz;
@@ -48,16 +62,29 @@ function localize(value: MaybeLocalized, language: Language): string {
   return typeof value === 'string' ? value : value[language];
 }
 
+function localizeBlock(block: LessonBlockSource, language: Language): LessonBlock {
+  switch (block.type) {
+    case 'code':
+      return { type: 'code', code: localize(block.code, language) };
+    case 'exercise':
+      return {
+        type: 'exercise',
+        question: block.question[language],
+        code: block.code === undefined ? undefined : localize(block.code, language),
+        solution: block.solution[language],
+      };
+    default:
+      return { type: block.type, text: block.text[language] };
+  }
+}
+
 export function localizeLesson(lesson: LessonSource, language: Language): Lesson {
   const { quiz } = lesson;
   return {
     id: lesson.id,
+    week: lesson.week,
     title: lesson.title[language],
-    blocks: lesson.blocks.map((block) =>
-      block.type === 'code'
-        ? { type: 'code', code: localize(block.code, language) }
-        : { type: 'text', text: block.text[language] }
-    ),
+    blocks: lesson.blocks.map((block) => localizeBlock(block, language)),
     quiz: {
       question: quiz.question[language],
       code: quiz.code === undefined ? undefined : localize(quiz.code, language),
@@ -657,4 +684,5 @@ export const lessonsByCourse: Record<string, LessonSource[]> = {
     },
   ],
   ...kbuLessonsByCourse,
+  'kbu-blm322': blm322Lessons,
 };

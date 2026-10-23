@@ -47,7 +47,7 @@ export default function HomeScreen() {
           <View style={styles.resumeHeader}>
             <Label themeColor="primary">{t.home.resumeLabel(currentCourse.title)}</Label>
             <ThemedText type="small" themeColor="textSecondary" style={styles.mono}>
-              {currentCourse.lessonsCompleted + 1}/{currentCourse.lessonsTotal}
+              {nextLesson.week ?? currentCourse.lessons.indexOf(nextLesson) + 1}/{currentCourse.lessonsTotal}
             </ThemedText>
           </View>
           <View style={styles.resumeText}>
