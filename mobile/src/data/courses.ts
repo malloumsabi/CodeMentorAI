@@ -54,6 +54,61 @@ const courseInfos: CourseInfo[] = [
     level: 'intermediate',
     lessonsCompleted: 0,
   },
+  // Karabük University computer engineering courses, in curriculum order.
+  {
+    id: 'kbu-blm111',
+    title: { fr: 'Programmation I (BLM111)', en: 'Programming I (BLM111)', tr: 'Programlama Dilleri I (BLM111)' },
+    badge: 'C',
+    level: 'beginner',
+    lessonsCompleted: 0,
+  },
+  {
+    id: 'kbu-blm112',
+    title: { fr: 'Programmation II (BLM112)', en: 'Programming II (BLM112)', tr: 'Programlama Dilleri II (BLM112)' },
+    badge: 'C II',
+    level: 'intermediate',
+    lessonsCompleted: 0,
+  },
+  {
+    id: 'kbu-cme225',
+    title: {
+      fr: 'Programmation orientée objet (CME225)',
+      en: 'Object Oriented Programming (CME225)',
+      tr: 'Nesne Yönelimli Programlama (CME225)',
+    },
+    badge: 'C++',
+    level: 'intermediate',
+    lessonsCompleted: 0,
+  },
+  {
+    id: 'kbu-cme227',
+    title: { fr: 'Structures de données (CME227)', en: 'Data Structures (CME227)', tr: 'Veri Yapıları (CME227)' },
+    badge: 'DS',
+    level: 'intermediate',
+    lessonsCompleted: 0,
+  },
+  {
+    id: 'kbu-cme226',
+    title: {
+      fr: 'Bases de données (CME226)',
+      en: 'Database Management (CME226)',
+      tr: 'Veritabanı Yönetimi (CME226)',
+    },
+    badge: 'SQL',
+    level: 'beginner',
+    lessonsCompleted: 0,
+  },
+  {
+    id: 'kbu-cme228',
+    title: {
+      fr: 'Programmation web (CME228)',
+      en: 'Internet Based Programming (CME228)',
+      tr: 'İnternet Tabanlı Programlama (CME228)',
+    },
+    badge: 'PHP',
+    level: 'beginner',
+    lessonsCompleted: 0,
+  },
 ];
 
 const coursesByLanguage = new Map<Language, Course[]>();

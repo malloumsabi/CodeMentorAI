@@ -3,6 +3,7 @@
  * Screens never read this directly: `getCourses(language)` resolves it to plain texts.
  */
 
+import { kbuLessonsByCourse } from '@/data/kbu-lessons';
 import type { Language, Localized } from '@/i18n/languages';
 
 /** A text that is either the same in every language (some code) or written per language. */
@@ -655,4 +656,5 @@ export const lessonsByCourse: Record<string, LessonSource[]> = {
       },
     },
   ],
+  ...kbuLessonsByCourse,
 };
