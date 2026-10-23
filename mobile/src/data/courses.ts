@@ -4,6 +4,7 @@
 
 import type { Language, Localized } from '@/i18n/languages';
 import { lessonsByCourse, localizeLesson, type Lesson } from '@/data/lessons';
+import type { StudyYear } from '@/hooks/use-profile';
 
 /** Displayed through the `levels` texts of the current language. */
 export type CourseLevel = 'beginner' | 'intermediate' | 'advanced';
@@ -315,6 +316,14 @@ export function getCourseProgress(course: Course) {
 /** The first lesson not done yet, or undefined when the course is finished. */
 export function getNextLesson(course: Course): Lesson | undefined {
   return course.lessons.find((lesson) => !course.completedLessonIds.includes(lesson.id));
+}
+
+/** The courses of a study year: the basics for the prep year, none for "other". */
+export function getGroupForYear(year: StudyYear): CourseGroup | undefined {
+  if (year === 'prep') {
+    return 'basics';
+  }
+  return COURSE_GROUPS.find((group) => group === year);
 }
 
 /** The course to resume first: the most advanced one that is started but not finished. */

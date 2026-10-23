@@ -74,6 +74,7 @@ export const fr = {
     startHint: 'Choisis un parcours pour commencer. Ta progression s’affichera ici.',
     startButton: 'Voir les parcours',
     myCourses: 'Mes parcours',
+    suggested: 'Pour bien commencer',
     seeAll: 'Tout voir',
   },
   courseCard: {
@@ -98,6 +99,8 @@ export const fr = {
     continue: 'Continuer',
     midtermSection: (from: number, to: number) => `Vize (partiel) · Semaines ${from} à ${to}`,
     finalSection: (from: number, to: number) => `Final · Semaines ${from} à ${to}`,
+    reviewMidterm: 'Réviser la vize',
+    reviewFinal: 'Réviser le final',
   },
   lessonRow: {
     done: 'Terminée · Revoir',
@@ -117,6 +120,10 @@ export const fr = {
     answerQuizToFinish: 'Réponds au quiz pour terminer',
     nextLesson: 'Leçon suivante',
     finishCourse: 'Terminer le parcours',
+    previous: 'Leçon précédente',
+    next: 'Leçon suivante',
+    weekLabel: (week: number) => `Semaine ${week}`,
+    lessonLabel: (lesson: number) => `Leçon ${lesson}`,
   },
   quiz: {
     label: 'À TOI DE JOUER',

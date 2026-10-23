@@ -70,6 +70,7 @@ export const en: Dictionary = {
     startHint: 'Pick a course to get started. Your progress will show up here.',
     startButton: 'See the courses',
     myCourses: 'My courses',
+    suggested: 'To get started',
     seeAll: 'See all',
   },
   courseCard: {
@@ -94,6 +95,8 @@ export const en: Dictionary = {
     continue: 'Continue',
     midtermSection: (from: number, to: number) => `Midterm · Weeks ${from} to ${to}`,
     finalSection: (from: number, to: number) => `Final · Weeks ${from} to ${to}`,
+    reviewMidterm: 'Review the midterm',
+    reviewFinal: 'Review the final',
   },
   lessonRow: {
     done: 'Completed · Review',
@@ -113,6 +116,10 @@ export const en: Dictionary = {
     answerQuizToFinish: 'Answer the quiz to finish',
     nextLesson: 'Next lesson',
     finishCourse: 'Finish the course',
+    previous: 'Previous lesson',
+    next: 'Next lesson',
+    weekLabel: (week: number) => `Week ${week}`,
+    lessonLabel: (lesson: number) => `Lesson ${lesson}`,
   },
   quiz: {
     label: 'YOUR TURN',

@@ -8,7 +8,7 @@ import { ThemedText } from '@/components/themed-text';
 import { Label } from '@/components/ui/label';
 import { SegmentedPicker } from '@/components/ui/segmented-picker';
 import { Spacing } from '@/constants/theme';
-import { COURSE_GROUPS, type CourseGroup } from '@/data/courses';
+import { COURSE_GROUPS, getGroupForYear, type CourseGroup } from '@/data/courses';
 import { useProfile, type StudyYear } from '@/hooks/use-profile';
 import { useCourses } from '@/hooks/use-progress';
 import { useI18n } from '@/i18n';
@@ -19,10 +19,7 @@ const FILTERS: readonly CourseFilter[] = ['all', ...COURSE_GROUPS];
 
 /** Opens on the student's own year; the prep year starts with the basics. */
 function defaultFilter(year: StudyYear | undefined): CourseFilter {
-  if (year === 'prep') {
-    return 'basics';
-  }
-  return COURSE_GROUPS.find((group) => group === year) ?? 'all';
+  return (year && getGroupForYear(year)) ?? 'all';
 }
 
 /** Every course is open to every student, whatever their year: the filter only helps to find them. */

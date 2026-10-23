@@ -70,6 +70,7 @@ export const tr: Dictionary = {
     startHint: 'Başlamak için bir kurs seç. İlerlemen burada görünecek.',
     startButton: 'Kursları gör',
     myCourses: 'Kurslarım',
+    suggested: 'Başlamak için',
     seeAll: 'Tümünü gör',
   },
   courseCard: {
@@ -94,6 +95,8 @@ export const tr: Dictionary = {
     continue: 'Devam et',
     midtermSection: (from: number, to: number) => `Vize · ${from}–${to}. haftalar`,
     finalSection: (from: number, to: number) => `Final · ${from}–${to}. haftalar`,
+    reviewMidterm: 'Vize tekrarı',
+    reviewFinal: 'Final tekrarı',
   },
   lessonRow: {
     done: 'Tamamlandı · Tekrar et',
@@ -113,6 +116,10 @@ export const tr: Dictionary = {
     answerQuizToFinish: 'Bitirmek için testi cevapla',
     nextLesson: 'Sonraki ders',
     finishCourse: 'Kursu bitir',
+    previous: 'Önceki ders',
+    next: 'Sonraki ders',
+    weekLabel: (week: number) => `${week}. hafta`,
+    lessonLabel: (lesson: number) => `${lesson}. ders`,
   },
   quiz: {
     label: 'SIRA SENDE',

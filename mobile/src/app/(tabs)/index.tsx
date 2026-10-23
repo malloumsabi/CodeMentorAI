@@ -10,7 +10,7 @@ import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { ProgressBar } from '@/components/ui/progress-bar';
 import { Fonts, Spacing } from '@/constants/theme';
-import { getCourseProgress, getCurrentCourse, getNextLesson } from '@/data/courses';
+import { getCourseProgress, getCurrentCourse, getGroupForYear, getNextLesson } from '@/data/courses';
 import { useProfile } from '@/hooks/use-profile';
 import { useCourses } from '@/hooks/use-progress';
 import { useI18n } from '@/i18n';
@@ -24,6 +24,11 @@ export default function HomeScreen() {
 
   const lessonsDone = courses.reduce((total, course) => total + course.lessonsCompleted, 0);
   const coursesDone = courses.filter((course) => course.lessonsCompleted === course.lessonsTotal).length;
+  // Only the started courses; before any lesson, the courses of the student's year as suggestions.
+  const startedCourses = courses.filter((course) => course.lessonsCompleted > 0);
+  const suggestedGroup = (profile && getGroupForYear(profile.year)) ?? 'basics';
+  const listedCourses =
+    startedCourses.length > 0 ? startedCourses : courses.filter((course) => course.group === suggestedGroup);
   // The first explanation of the lesson, as a short description under its title.
   const nextLessonIntro = nextLesson?.blocks.find((block) => block.type === 'text');
 
@@ -101,15 +106,15 @@ export default function HomeScreen() {
 
       <View>
         <View style={styles.sectionHeader}>
-          <ThemedText type="section">{t.home.myCourses}</ThemedText>
+          <ThemedText type="section">{startedCourses.length > 0 ? t.home.myCourses : t.home.suggested}</ThemedText>
           <Link href="/courses" style={styles.seeAll}>
             <ThemedText type="smallBold" themeColor="primary">
               {t.home.seeAll}
             </ThemedText>
           </Link>
         </View>
-        {courses.map((course) => (
-          <CourseRow key={course.id} course={course} showProgress />
+        {listedCourses.map((course) => (
+          <CourseRow key={course.id} course={course} showProgress={startedCourses.length > 0} />
         ))}
       </View>
     </Screen>

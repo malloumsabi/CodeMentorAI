@@ -61,6 +61,10 @@ export default function CourseScreen() {
         },
       ].filter((section) => section.lessons.length > 0)
     : [{ title: null, lessons: course.lessons }];
+  // The last week of each half ends with the review of that exam.
+  const midtermReview = isWeekly ? course.lessons.find((lesson) => lesson.week === MIDTERM_LAST_WEEK) : undefined;
+  const finalReview =
+    isWeekly && lastWeek > MIDTERM_LAST_WEEK ? course.lessons.find((lesson) => lesson.week === lastWeek) : undefined;
 
   return (
     <ScrollView contentContainerStyle={contentStyle}>
@@ -88,6 +92,27 @@ export default function CourseScreen() {
           title={course.lessonsCompleted === 0 ? t.course.start : t.course.continue}
           onPress={() => openLesson(nextLesson.id)}
         />
+      )}
+
+      {(midtermReview || finalReview) && (
+        <View style={[styles.reviews, nextLesson && styles.underButton]}>
+          {midtermReview && (
+            <Button
+              title={t.course.reviewMidterm}
+              variant="secondary"
+              style={styles.review}
+              onPress={() => openLesson(midtermReview.id)}
+            />
+          )}
+          {finalReview && (
+            <Button
+              title={t.course.reviewFinal}
+              variant="secondary"
+              style={styles.review}
+              onPress={() => openLesson(finalReview.id)}
+            />
+          )}
+        </View>
       )}
 
       {sections.map((section) => (
@@ -122,5 +147,17 @@ const styles = StyleSheet.create({
   },
   list: {
     gap: Spacing.two,
+  },
+  reviews: {
+    flexDirection: 'row',
+    gap: Spacing.two,
+  },
+  // Closer to the start / continue button they complete.
+  underButton: {
+    marginTop: -Spacing.two,
+  },
+  review: {
+    flex: 1,
+    paddingHorizontal: Spacing.two,
   },
 });

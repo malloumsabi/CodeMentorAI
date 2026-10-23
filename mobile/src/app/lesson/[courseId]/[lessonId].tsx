@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { CodeBlock } from '@/components/lesson/code-block';
 import { ExerciseCard } from '@/components/lesson/exercise-card';
+import { LessonNavigation } from '@/components/lesson/lesson-navigation';
 import { PracticeQuiz } from '@/components/lesson/practice-quiz';
 import { QuizCard } from '@/components/lesson/quiz-card';
 import { ThemedText } from '@/components/themed-text';
@@ -115,6 +116,8 @@ export default function LessonScreen() {
       ) : (
         <Button title={finishTitle} disabled={!isQuizSolved} onPress={finishLesson} />
       )}
+
+      <LessonNavigation course={course} lessonIndex={lessonIndex} />
 
       <PracticeQuiz key={lesson.id} lesson={{ courseId: course.id, lessonId: lesson.id }} />
     </ScrollView>
