@@ -115,6 +115,14 @@ export const tr: Dictionary = {
     correct: (explanation: string) => `Doğru cevap! ${explanation}`,
     wrong: 'Tam olarak değil. Tekrar dene!',
   },
+  practice: {
+    title: 'Mentorla alıştırma yap',
+    intro: 'Mentor bu ders hakkında yeni sorular hazırlar. Bu sorular ilerlemeni değiştirmez.',
+    generate: '3 soru oluştur',
+    regenerate: '3 yeni soru',
+    loading: 'Mentor sorularını hazırlıyor…',
+    failed: 'Mentor soruları hazırlayamadı. Tekrar dene.',
+  },
   mentor: {
     title: 'Yapay Zekâ Mentor',
     author: 'Mentor',

@@ -1,12 +1,10 @@
-import Anthropic from '@anthropic-ai/sdk';
-
-import { getCourses } from '@/data/courses';
 import type { Dictionary } from '@/i18n/fr';
 import { DEFAULT_LANGUAGE, getDictionary, isLanguage, LANGUAGE_NAMES, type Language } from '@/i18n/languages';
+import { claude, describeError } from '@/server/claude';
+import { findLesson, lessonText } from '@/server/lesson-context';
 import {
   MAX_HISTORY_MESSAGES,
   MAX_MESSAGE_LENGTH,
-  type LessonRef,
   type MentorMessage,
   type MentorStreamEvent,
 } from '@/utils/mentor-api';
@@ -27,8 +25,6 @@ Ta façon d'aider :
 - Quand il montre une erreur, explique ce qu'elle veut dire et comment la trouver par lui-même, puis comment la corriger.
 - Encourage-le sans en faire trop.
 - Si la question ne concerne pas la programmation, réponds brièvement et ramène gentiment la conversation vers l'apprentissage du code.`;
-
-const client = new Anthropic();
 
 function errorResponse(error: string, status: number) {
   return Response.json({ error }, { status });
@@ -65,26 +61,18 @@ function describeLesson(lessonRef: unknown, language: Language, t: Dictionary): 
   if (lessonRef === undefined || lessonRef === null) {
     return undefined;
   }
-  const { courseId, lessonId } = lessonRef as Partial<LessonRef>;
-  // The lesson in the app language, as the student sees it on screen.
-  const course = getCourses(language).find((item) => item.id === courseId);
-  const lesson = course?.lessons.find((item) => item.id === lessonId);
-  if (!course || !lesson) {
+  const found = findLesson(lessonRef, language);
+  if (!found) {
     return null;
   }
 
-  const content = lesson.blocks
-    .map((block) => (block.type === 'code' ? `\`\`\`\n${block.code}\n\`\`\`` : block.text))
-    .join('\n\n');
+  const { course, lesson } = found;
   const { quiz } = lesson;
   const options = quiz.options.map((option, index) => `${index + 1}. ${option}`).join('\n');
 
   return `L'élève t'écrit depuis cette leçon de l'application. Appuie-toi dessus pour lui répondre.
 
-Parcours : ${course.title} (${t.levels[course.level]})
-Leçon : ${lesson.title}
-
-${content}
+${lessonText(course, lesson, t)}
 
 Quiz de la leçon :
 ${quiz.question}${quiz.code ? `\n\`\`\`\n${quiz.code}\n\`\`\`` : ''}
@@ -121,7 +109,7 @@ export async function POST(request: Request) {
       const send = (event: MentorStreamEvent) => controller.enqueue(encoder.encode(JSON.stringify(event) + '\n'));
 
       try {
-        const stream = client.beta.messages.stream({
+        const stream = claude.beta.messages.stream({
           model: 'claude-opus-5-5',
           max_tokens: 4096,
           system,
@@ -159,22 +147,4 @@ export async function POST(request: Request) {
   return new Response(responseBody, {
     headers: { 'Content-Type': 'application/x-ndjson; charset=utf-8', 'Cache-Control': 'no-cache' },
   });
-}
-
-function describeError(error: unknown, t: Dictionary): string {
-  if (error instanceof Anthropic.AuthenticationError || error instanceof Anthropic.PermissionDeniedError) {
-    return t.mentorErrors.keyRefused;
-  }
-  if (error instanceof Anthropic.RateLimitError) {
-    return t.mentorErrors.rateLimited;
-  }
-  if (error instanceof Anthropic.APIConnectionError) {
-    return t.mentorErrors.apiUnreachable;
-  }
-  if (error instanceof Anthropic.APIError) {
-    console.error('Claude API error', error.status, error.message);
-    return t.mentorErrors.apiError(String(error.status ?? '?'));
-  }
-  console.error('Mentor route error', error);
-  return t.mentorErrors.unexpected;
 }

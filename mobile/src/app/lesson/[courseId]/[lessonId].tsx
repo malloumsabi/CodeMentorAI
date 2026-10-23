@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { CodeBlock } from '@/components/lesson/code-block';
+import { PracticeQuiz } from '@/components/lesson/practice-quiz';
 import { QuizCard } from '@/components/lesson/quiz-card';
 import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui/button';
@@ -112,6 +113,8 @@ export default function LessonScreen() {
       ) : (
         <Button title={finishTitle} disabled={!isQuizSolved} onPress={finishLesson} />
       )}
+
+      <PracticeQuiz key={lesson.id} lesson={{ courseId: course.id, lessonId: lesson.id }} />
     </ScrollView>
   );
 }

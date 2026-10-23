@@ -119,6 +119,14 @@ export const fr = {
     correct: (explanation: string) => `Bonne réponse ! ${explanation}`,
     wrong: 'Pas tout à fait. Réessaie !',
   },
+  practice: {
+    title: 'S’entraîner avec le mentor',
+    intro: 'Le mentor prépare de nouvelles questions sur cette leçon. Elles ne changent pas ta progression.',
+    generate: 'Générer 3 questions',
+    regenerate: '3 nouvelles questions',
+    loading: 'Le mentor prépare tes questions…',
+    failed: 'Le mentor n’a pas réussi à préparer les questions. Réessaie.',
+  },
   mentor: {
     title: 'Mentor IA',
     author: 'Mentor',

@@ -115,6 +115,14 @@ export const en: Dictionary = {
     correct: (explanation: string) => `Correct! ${explanation}`,
     wrong: 'Not quite. Try again!',
   },
+  practice: {
+    title: 'Practice with the mentor',
+    intro: 'The mentor writes new questions about this lesson. They don’t change your progress.',
+    generate: 'Generate 3 questions',
+    regenerate: '3 new questions',
+    loading: 'The mentor is writing your questions…',
+    failed: 'The mentor couldn’t write the questions. Try again.',
+  },
   mentor: {
     title: 'AI Mentor',
     author: 'Mentor',
