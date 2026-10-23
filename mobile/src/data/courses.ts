@@ -190,6 +190,17 @@ const courseInfos: CourseInfo[] = [
     level: 'advanced',
   },
   {
+    id: 'kbu-blm426',
+    title: {
+      fr: 'Génie logiciel (BLM426)',
+      en: 'Software Engineering (BLM426)',
+      tr: 'Yazılım Mühendisliği (BLM426)',
+    },
+    badge: 'SE',
+    group: 'year3',
+    level: 'intermediate',
+  },
+  {
     id: 'kbu-blm431',
     title: { fr: 'Intelligence artificielle (BLM431)', en: 'Artificial Intelligence (BLM431)', tr: 'Yapay Zeka (BLM431)' },
     badge: 'AI',
