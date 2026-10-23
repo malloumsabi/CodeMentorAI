@@ -223,6 +223,17 @@ const courseInfos: CourseInfo[] = [
     level: 'intermediate',
   },
   {
+    id: 'kbu-blm321',
+    title: {
+      fr: 'Microprocesseurs (BLM321)',
+      en: 'Microprocessors (BLM321)',
+      tr: 'Mikroişlemciler (BLM321)',
+    },
+    badge: 'x86',
+    group: 'year3',
+    level: 'advanced',
+  },
+  {
     id: 'kbu-blm431',
     title: { fr: 'Intelligence artificielle (BLM431)', en: 'Artificial Intelligence (BLM431)', tr: 'Yapay Zeka (BLM431)' },
     badge: 'AI',
