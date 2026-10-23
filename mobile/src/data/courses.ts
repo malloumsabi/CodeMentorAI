@@ -88,6 +88,13 @@ const courseInfos: CourseInfo[] = [
     lessonsCompleted: 0,
   },
   {
+    id: 'kbu-blm221',
+    title: { fr: 'Circuits logiques (BLM221)', en: 'Logic Circuits (BLM221)', tr: 'Mantık Devreleri (BLM221)' },
+    badge: 'Bool',
+    level: 'beginner',
+    lessonsCompleted: 0,
+  },
+  {
     id: 'kbu-cme226',
     title: {
       fr: 'Bases de données (CME226)',
@@ -107,6 +114,57 @@ const courseInfos: CourseInfo[] = [
     },
     badge: 'PHP',
     level: 'beginner',
+    lessonsCompleted: 0,
+  },
+  {
+    id: 'kbu-blm220',
+    title: {
+      fr: 'Mathématiques discrètes (BLM220)',
+      en: 'Discrete Mathematics (BLM220)',
+      tr: 'Ayrık Matematik (BLM220)',
+    },
+    badge: 'Math',
+    level: 'intermediate',
+    lessonsCompleted: 0,
+  },
+  {
+    id: 'kbu-cme324',
+    title: {
+      fr: 'Systèmes d’exploitation (CME324)',
+      en: 'Operating Systems (CME324)',
+      tr: 'İşletim Sistemleri (CME324)',
+    },
+    badge: 'OS',
+    level: 'intermediate',
+    lessonsCompleted: 0,
+  },
+  {
+    id: 'kbu-cme326',
+    title: {
+      fr: 'Réseaux informatiques (CME326)',
+      en: 'Computer Networks (CME326)',
+      tr: 'Bilgisayar Ağları (CME326)',
+    },
+    badge: 'Net',
+    level: 'intermediate',
+    lessonsCompleted: 0,
+  },
+  {
+    id: 'kbu-blm431',
+    title: { fr: 'Intelligence artificielle (BLM431)', en: 'Artificial Intelligence (BLM431)', tr: 'Yapay Zeka (BLM431)' },
+    badge: 'AI',
+    level: 'intermediate',
+    lessonsCompleted: 0,
+  },
+  {
+    id: 'kbu-blm446',
+    title: {
+      fr: 'Sécurité informatique et réseau (BLM446)',
+      en: 'Computer and Network Security (BLM446)',
+      tr: 'Bilgisayar ve Ağ Güvenliği (BLM446)',
+    },
+    badge: 'Sec',
+    level: 'intermediate',
     lessonsCompleted: 0,
   },
 ];
