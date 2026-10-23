@@ -76,7 +76,7 @@ const courseInfos: CourseInfo[] = [
       en: 'Object Oriented Programming (CME225)',
       tr: 'Nesne Yönelimli Programlama (CME225)',
     },
-    badge: 'C++',
+    badge: 'Java',
     level: 'intermediate',
     lessonsCompleted: 0,
   },

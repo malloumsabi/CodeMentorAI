@@ -277,31 +277,31 @@ export const kbuLessonsByCourse: Record<string, LessonSource[]> = {
   ],
   'kbu-cme225': [
     {
-      id: 'cpp-classes',
+      id: 'java-classes',
       title: { fr: 'Classes et objets', en: 'Classes and objects', tr: 'Sınıflar ve nesneler' },
       blocks: [
         {
           type: 'text',
           text: {
-            fr: 'Une classe est un plan : elle décrit des données (attributs) et des actions (méthodes). Un objet est une chose construite à partir de ce plan.',
-            en: 'A class is a blueprint: it describes data (attributes) and actions (methods). An object is a thing built from that blueprint.',
-            tr: 'Sınıf bir plandır: verileri (özellikler) ve eylemleri (metotlar) tanımlar. Nesne ise bu plandan oluşturulan bir varlıktır.',
+            fr: 'Une classe est un plan : elle décrit des données (attributs) et des actions (méthodes). Un objet est une chose construite à partir de ce plan, avec le mot-clé new.',
+            en: 'A class is a blueprint: it describes data (attributes) and actions (methods). An object is a thing built from that blueprint, with the new keyword.',
+            tr: 'Sınıf bir plandır: verileri (özellikler) ve eylemleri (metotlar) tanımlar. Nesne ise bu plandan new anahtar kelimesiyle oluşturulan bir varlıktır.',
           },
         },
         {
           type: 'code',
           code: {
-            fr: '#include <iostream>\n#include <string>\nusing namespace std;\n\nclass Etudiant {\npublic:\n    string nom;\n    int age;\n\n    void sePresenter() {\n        cout << "Je suis " << nom << ", " << age << " ans" << endl;\n    }\n};\n\nint main() {\n    Etudiant e;\n    e.nom = "Awa";\n    e.age = 20;\n    e.sePresenter();  // Je suis Awa, 20 ans\n}',
-            en: '#include <iostream>\n#include <string>\nusing namespace std;\n\nclass Student {\npublic:\n    string name;\n    int age;\n\n    void introduce() {\n        cout << "I am " << name << ", " << age << " years old" << endl;\n    }\n};\n\nint main() {\n    Student s;\n    s.name = "Awa";\n    s.age = 20;\n    s.introduce();  // I am Awa, 20 years old\n}',
-            tr: '#include <iostream>\n#include <string>\nusing namespace std;\n\nclass Ogrenci {\npublic:\n    string ad;\n    int yas;\n\n    void tanit() {\n        cout << "Ben " << ad << ", " << yas << " yaşındayım" << endl;\n    }\n};\n\nint main() {\n    Ogrenci o;\n    o.ad = "Ayşe";\n    o.yas = 20;\n    o.tanit();  // Ben Ayşe, 20 yaşındayım\n}',
+            fr: 'public class Etudiant {\n    String nom;\n    int age;\n\n    void sePresenter() {\n        System.out.println("Je suis " + nom + ", " + age + " ans");\n    }\n}\n\n// Dans main :\nEtudiant e = new Etudiant();\ne.nom = "Awa";\ne.age = 20;\ne.sePresenter();  // Je suis Awa, 20 ans',
+            en: 'public class Student {\n    String name;\n    int age;\n\n    void introduce() {\n        System.out.println("I am " + name + ", " + age + " years old");\n    }\n}\n\n// In main:\nStudent s = new Student();\ns.name = "Awa";\ns.age = 20;\ns.introduce();  // I am Awa, 20 years old',
+            tr: 'public class Ogrenci {\n    String ad;\n    int yas;\n\n    void tanit() {\n        System.out.println("Ben " + ad + ", " + yas + " yaşındayım");\n    }\n}\n\n// main içinde:\nOgrenci o = new Ogrenci();\no.ad = "Ayşe";\no.yas = 20;\no.tanit();  // Ben Ayşe, 20 yaşındayım',
           },
         },
         {
           type: 'text',
           text: {
-            fr: 'On accède aux attributs et aux méthodes d’un objet avec un point. cout << affiche du texte en C++, comme printf en C.',
-            en: 'You reach an object’s attributes and methods with a dot. cout << prints text in C++, like printf in C.',
-            tr: 'Bir nesnenin özelliklerine ve metotlarına nokta ile erişilir. cout <<, C’deki printf gibi C++’ta metin yazdırır.',
+            fr: 'On accède aux attributs et aux méthodes d’un objet avec un point. System.out.println affiche une ligne de texte. En Java, chaque classe public se place dans son propre fichier, ici Etudiant.java.',
+            en: 'You reach an object’s attributes and methods with a dot. System.out.println prints a line of text. In Java, each public class goes in its own file, here Student.java.',
+            tr: 'Bir nesnenin özelliklerine ve metotlarına nokta ile erişilir. System.out.println bir satır metin yazdırır. Java’da her public sınıf kendi dosyasına yazılır, burada Ogrenci.java.',
           },
         },
       ],
@@ -312,9 +312,9 @@ export const kbuLessonsByCourse: Record<string, LessonSource[]> = {
           tr: 'Bu kod kaç sınıf ve kaç nesne oluşturur?',
         },
         code: {
-          fr: 'class Etudiant { /* ... */ };\n\nEtudiant a;\nEtudiant b;',
-          en: 'class Student { /* ... */ };\n\nStudent a;\nStudent b;',
-          tr: 'class Ogrenci { /* ... */ };\n\nOgrenci a;\nOgrenci b;',
+          fr: 'public class Etudiant { /* ... */ }\n\nEtudiant a = new Etudiant();\nEtudiant b = new Etudiant();',
+          en: 'public class Student { /* ... */ }\n\nStudent a = new Student();\nStudent b = new Student();',
+          tr: 'public class Ogrenci { /* ... */ }\n\nOgrenci a = new Ogrenci();\nOgrenci b = new Ogrenci();',
         },
         options: {
           fr: ['1 classe et 1 objet', '1 classe et 2 objets', '2 classes et 2 objets'],
@@ -323,14 +323,14 @@ export const kbuLessonsByCourse: Record<string, LessonSource[]> = {
         },
         answerIndex: 1,
         explanation: {
-          fr: 'Il n’y a qu’un seul plan (la classe), mais on construit deux objets différents à partir de lui : a et b.',
-          en: 'There is only one blueprint (the class), but two different objects are built from it: a and b.',
-          tr: 'Tek bir plan (sınıf) vardır, ama ondan iki farklı nesne oluşturulur: a ve b.',
+          fr: 'Il n’y a qu’un seul plan (la classe), mais chaque new construit un objet différent : a et b.',
+          en: 'There is only one blueprint (the class), but each new builds a different object: a and b.',
+          tr: 'Tek bir plan (sınıf) vardır, ama her new farklı bir nesne oluşturur: a ve b.',
         },
       },
     },
     {
-      id: 'cpp-constructors',
+      id: 'java-constructors',
       title: {
         fr: 'Constructeur et encapsulation',
         en: 'Constructors and encapsulation',
@@ -340,83 +340,87 @@ export const kbuLessonsByCourse: Record<string, LessonSource[]> = {
         {
           type: 'text',
           text: {
-            fr: 'Le constructeur porte le nom de la classe et s’exécute à la création de l’objet. Les attributs private ne sont accessibles que par les méthodes de la classe.',
-            en: 'The constructor has the class’s name and runs when the object is created. private attributes can only be reached by the class’s own methods.',
-            tr: 'Yapıcı (constructor) sınıfla aynı adı taşır ve nesne oluşturulurken çalışır. private özelliklere yalnızca sınıfın kendi metotları erişebilir.',
+            fr: 'Le constructeur porte le nom de la classe et s’exécute à la création de l’objet, avec new. Les attributs private ne sont accessibles que par les méthodes de la classe.',
+            en: 'The constructor has the class’s name and runs when the object is created with new. private attributes can only be reached by the class’s own methods.',
+            tr: 'Yapıcı (constructor) sınıfla aynı adı taşır ve nesne new ile oluşturulurken çalışır. private özelliklere yalnızca sınıfın kendi metotları erişebilir.',
           },
         },
         {
           type: 'code',
           code: {
-            fr: 'class Compte {\nprivate:\n    double solde;\npublic:\n    Compte(double depart) {\n        solde = depart;\n    }\n    void deposer(double montant) {\n        if (montant > 0) solde += montant;\n    }\n    double getSolde() { return solde; }\n};\n\nCompte c(100);\nc.deposer(50);\ncout << c.getSolde();  // 150',
-            en: 'class Account {\nprivate:\n    double balance;\npublic:\n    Account(double start) {\n        balance = start;\n    }\n    void deposit(double amount) {\n        if (amount > 0) balance += amount;\n    }\n    double getBalance() { return balance; }\n};\n\nAccount a(100);\na.deposit(50);\ncout << a.getBalance();  // 150',
-            tr: 'class Hesap {\nprivate:\n    double bakiye;\npublic:\n    Hesap(double baslangic) {\n        bakiye = baslangic;\n    }\n    void yatir(double miktar) {\n        if (miktar > 0) bakiye += miktar;\n    }\n    double getBakiye() { return bakiye; }\n};\n\nHesap h(100);\nh.yatir(50);\ncout << h.getBakiye();  // 150',
+            fr: 'public class Compte {\n    private double solde;\n\n    public Compte(double depart) {\n        solde = depart;\n    }\n\n    public void deposer(double montant) {\n        if (montant > 0) solde += montant;\n    }\n\n    public double getSolde() { return solde; }\n}\n\nCompte c = new Compte(100);\nc.deposer(50);\nSystem.out.println(c.getSolde());  // 150.0',
+            en: 'public class Account {\n    private double balance;\n\n    public Account(double start) {\n        balance = start;\n    }\n\n    public void deposit(double amount) {\n        if (amount > 0) balance += amount;\n    }\n\n    public double getBalance() { return balance; }\n}\n\nAccount a = new Account(100);\na.deposit(50);\nSystem.out.println(a.getBalance());  // 150.0',
+            tr: 'public class Hesap {\n    private double bakiye;\n\n    public Hesap(double baslangic) {\n        bakiye = baslangic;\n    }\n\n    public void yatir(double miktar) {\n        if (miktar > 0) bakiye += miktar;\n    }\n\n    public double getBakiye() { return bakiye; }\n}\n\nHesap h = new Hesap(100);\nh.yatir(50);\nSystem.out.println(h.getBakiye());  // 150.0',
           },
         },
         {
           type: 'text',
           text: {
-            fr: 'C’est l’encapsulation : personne ne peut écrire c.solde = -500 depuis l’extérieur. On passe par des méthodes qui vérifient les valeurs.',
-            en: 'This is encapsulation: nobody can write a.balance = -500 from outside. You go through methods that check the values.',
-            tr: 'Buna kapsülleme denir: kimse dışarıdan h.bakiye = -500 yazamaz. Değerleri kontrol eden metotlar kullanılır.',
+            fr: 'C’est l’encapsulation : personne ne peut écrire c.solde = -500 depuis l’extérieur, on passe par des méthodes qui vérifient les valeurs. Comme solde est un double, Java affiche 150.0.',
+            en: 'This is encapsulation: nobody can write a.balance = -500 from outside, you go through methods that check the values. Since balance is a double, Java prints 150.0.',
+            tr: 'Buna kapsülleme denir: kimse dışarıdan h.bakiye = -500 yazamaz, değerleri kontrol eden metotlar kullanılır. bakiye bir double olduğu için Java 150.0 yazdırır.',
           },
         },
       ],
       quiz: {
         question: { fr: 'Qu’affiche ce code ?', en: 'What does this code print?', tr: 'Bu kod ne yazdırır?' },
         code: {
-          fr: 'Compte c(100);\nc.deposer(-30);\ncout << c.getSolde();',
-          en: 'Account a(100);\na.deposit(-30);\ncout << a.getBalance();',
-          tr: 'Hesap h(100);\nh.yatir(-30);\ncout << h.getBakiye();',
+          fr: 'Compte c = new Compte(100);\nc.deposer(-30);\nSystem.out.println(c.getSolde());',
+          en: 'Account a = new Account(100);\na.deposit(-30);\nSystem.out.println(a.getBalance());',
+          tr: 'Hesap h = new Hesap(100);\nh.yatir(-30);\nSystem.out.println(h.getBakiye());',
         },
-        options: { fr: ['70', '100', '130'], en: ['70', '100', '130'], tr: ['70', '100', '130'] },
+        options: {
+          fr: ['70.0', '100.0', '130.0'],
+          en: ['70.0', '100.0', '130.0'],
+          tr: ['70.0', '100.0', '130.0'],
+        },
         answerIndex: 1,
         explanation: {
-          fr: 'La méthode n’ajoute le montant que s’il est positif. -30 est refusé, le solde reste à 100.',
-          en: 'The method only adds the amount when it is positive. -30 is refused, so the balance stays at 100.',
-          tr: 'Metot, miktarı yalnızca pozitifse ekler. -30 reddedilir, bakiye 100 olarak kalır.',
+          fr: 'La méthode n’ajoute le montant que s’il est positif. -30 est refusé, le solde reste à 100.0.',
+          en: 'The method only adds the amount when it is positive. -30 is refused, so the balance stays at 100.0.',
+          tr: 'Metot, miktarı yalnızca pozitifse ekler. -30 reddedilir, bakiye 100.0 olarak kalır.',
         },
       },
     },
     {
-      id: 'cpp-inheritance',
+      id: 'java-inheritance',
       title: { fr: 'L’héritage', en: 'Inheritance', tr: 'Kalıtım' },
       blocks: [
         {
           type: 'text',
           text: {
-            fr: 'L’héritage permet de créer une classe à partir d’une autre : la classe fille reçoit tout ce que contient la classe mère, et peut ajouter ses propres méthodes.',
-            en: 'Inheritance lets you build a class from another one: the child class gets everything the parent class has, and can add its own methods.',
-            tr: 'Kalıtım, bir sınıfı başka bir sınıftan türetmeyi sağlar: alt sınıf, üst sınıftaki her şeyi alır ve kendi metotlarını ekleyebilir.',
+            fr: 'Avec extends, une classe hérite d’une autre : la classe fille reçoit tout ce que contient la classe mère, et peut ajouter ses propres méthodes.',
+            en: 'With extends, a class inherits from another one: the child class gets everything the parent class has, and can add its own methods.',
+            tr: 'extends ile bir sınıf başka bir sınıftan türetilir: alt sınıf, üst sınıftaki her şeyi alır ve kendi metotlarını ekleyebilir.',
           },
         },
         {
           type: 'code',
           code: {
-            fr: 'class Animal {\npublic:\n    void manger() { cout << "Je mange" << endl; }\n};\n\nclass Chien : public Animal {\npublic:\n    void aboyer() { cout << "Wouf !" << endl; }\n};\n\nChien rex;\nrex.manger();  // Je mange (hérité de Animal)\nrex.aboyer();  // Wouf !',
-            en: 'class Animal {\npublic:\n    void eat() { cout << "I am eating" << endl; }\n};\n\nclass Dog : public Animal {\npublic:\n    void bark() { cout << "Woof!" << endl; }\n};\n\nDog rex;\nrex.eat();   // I am eating (inherited from Animal)\nrex.bark();  // Woof!',
-            tr: 'class Hayvan {\npublic:\n    void ye() { cout << "Yemek yiyorum" << endl; }\n};\n\nclass Kopek : public Hayvan {\npublic:\n    void havla() { cout << "Hav hav!" << endl; }\n};\n\nKopek karabas;\nkarabas.ye();     // Yemek yiyorum (Hayvan’dan miras)\nkarabas.havla();  // Hav hav!',
+            fr: 'class Animal {\n    void manger() { System.out.println("Je mange"); }\n}\n\nclass Chien extends Animal {\n    void aboyer() { System.out.println("Wouf !"); }\n}\n\nChien rex = new Chien();\nrex.manger();  // Je mange (hérité de Animal)\nrex.aboyer();  // Wouf !',
+            en: 'class Animal {\n    void eat() { System.out.println("I am eating"); }\n}\n\nclass Dog extends Animal {\n    void bark() { System.out.println("Woof!"); }\n}\n\nDog rex = new Dog();\nrex.eat();   // I am eating (inherited from Animal)\nrex.bark();  // Woof!',
+            tr: 'class Hayvan {\n    void ye() { System.out.println("Yemek yiyorum"); }\n}\n\nclass Kopek extends Hayvan {\n    void havla() { System.out.println("Hav hav!"); }\n}\n\nKopek karabas = new Kopek();\nkarabas.ye();     // Yemek yiyorum (Hayvan’dan miras)\nkarabas.havla();  // Hav hav!',
           },
         },
         {
           type: 'text',
           text: {
-            fr: 'Un Chien est un Animal, mais un Animal n’est pas forcément un Chien : l’héritage ne marche que dans un sens.',
-            en: 'A Dog is an Animal, but an Animal is not necessarily a Dog: inheritance only works one way.',
-            tr: 'Her Kopek bir Hayvan’dır, ama her Hayvan bir Kopek değildir: kalıtım tek yönde çalışır.',
+            fr: 'Un Chien est un Animal, mais un Animal n’est pas forcément un Chien : l’héritage ne marche que dans un sens. En Java, une classe ne peut hériter que d’une seule classe.',
+            en: 'A Dog is an Animal, but an Animal is not necessarily a Dog: inheritance only works one way. In Java, a class can inherit from only one class.',
+            tr: 'Her Kopek bir Hayvan’dır, ama her Hayvan bir Kopek değildir: kalıtım tek yönde çalışır. Java’da bir sınıf yalnızca tek bir sınıftan türetilebilir.',
           },
         },
       ],
       quiz: {
         question: {
-          fr: 'Quelle ligne provoque une erreur ?',
-          en: 'Which line causes an error?',
-          tr: 'Hangi satır hataya neden olur?',
+          fr: 'Quelle ligne ne compile pas ?',
+          en: 'Which line does not compile?',
+          tr: 'Hangi satır derlenmez?',
         },
         code: {
-          fr: 'Chien c;\nAnimal a;\nc.manger();\nc.aboyer();\na.aboyer();',
-          en: 'Dog d;\nAnimal a;\nd.eat();\nd.bark();\na.bark();',
-          tr: 'Kopek k;\nHayvan h;\nk.ye();\nk.havla();\nh.havla();',
+          fr: 'Chien c = new Chien();\nAnimal a = new Animal();\nc.manger();\nc.aboyer();\na.aboyer();',
+          en: 'Dog d = new Dog();\nAnimal a = new Animal();\nd.eat();\nd.bark();\na.bark();',
+          tr: 'Kopek k = new Kopek();\nHayvan h = new Hayvan();\nk.ye();\nk.havla();\nh.havla();',
         },
         options: {
           fr: ['c.manger();', 'c.aboyer();', 'a.aboyer();'],
