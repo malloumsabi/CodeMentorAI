@@ -212,6 +212,17 @@ const courseInfos: CourseInfo[] = [
     level: 'intermediate',
   },
   {
+    id: 'kbu-blm325',
+    title: {
+      fr: 'Systèmes de communication de données (BLM325)',
+      en: 'Data Communication Systems (BLM325)',
+      tr: 'Veri İletişim Sistemleri (BLM325)',
+    },
+    badge: 'Data',
+    group: 'year3',
+    level: 'intermediate',
+  },
+  {
     id: 'kbu-blm431',
     title: { fr: 'Intelligence artificielle (BLM431)', en: 'Artificial Intelligence (BLM431)', tr: 'Yapay Zeka (BLM431)' },
     badge: 'AI',
