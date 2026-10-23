@@ -251,6 +251,17 @@ const courseInfos: CourseInfo[] = [
     group: 'year4',
     level: 'intermediate',
   },
+  {
+    id: 'kbu-blm436',
+    title: {
+      fr: 'Introduction à la reconnaissance de formes (BLM436)',
+      en: 'Introduction to Pattern Recognition (BLM436)',
+      tr: 'Örüntü Tanımaya Giriş (BLM436)',
+    },
+    badge: 'PR',
+    group: 'year4',
+    level: 'advanced',
+  },
 ];
 
 const coursesByLanguage = new Map<Language, Course[]>();
