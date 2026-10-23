@@ -262,6 +262,17 @@ const courseInfos: CourseInfo[] = [
     group: 'year4',
     level: 'advanced',
   },
+  {
+    id: 'kbu-blm425',
+    title: {
+      fr: 'Introduction à la fouille de données (BLM425)',
+      en: 'Introduction to Data Mining (BLM425)',
+      tr: 'Veri Madenciliğine Giriş (BLM425)',
+    },
+    badge: 'Mine',
+    group: 'year4',
+    level: 'intermediate',
+  },
 ];
 
 const coursesByLanguage = new Map<Language, Course[]>();
