@@ -135,6 +135,9 @@ export const tr: Dictionary = {
     send: 'Gönder',
     startOver: 'Yeniden başla',
     startOverLabel: 'Yeni sohbet',
+    startOverConfirmTitle: 'Bu sohbet silinsin mi?',
+    startOverConfirmMessage: 'Bu sohbetteki tüm mesajlar silinecek. Bu işlem geri alınamaz.',
+    startOverConfirmLabel: 'Sil',
     disclaimer: 'Mentor bir yapay zekâdır: cevapları hata içerebilir.',
   },
   mentorErrors: {

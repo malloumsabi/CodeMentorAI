@@ -139,6 +139,9 @@ export const fr = {
     send: 'Envoyer',
     startOver: 'Recommencer',
     startOverLabel: 'Nouvelle conversation',
+    startOverConfirmTitle: 'Effacer cette conversation ?',
+    startOverConfirmMessage: 'Tous les messages de cette conversation seront supprimés. Cette action est définitive.',
+    startOverConfirmLabel: 'Effacer',
     disclaimer: 'Le mentor est une IA : ses réponses peuvent contenir des erreurs.',
   },
   /** Also used by the server route, so the mentor's errors follow the app language. */

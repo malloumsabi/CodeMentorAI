@@ -21,6 +21,7 @@ import { Fonts, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { useSavedConversation } from '@/hooks/use-saved-conversation';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
+import { confirmDestructive } from '@/utils/confirm';
 import { askMentor, MAX_MESSAGE_LENGTH, type LessonRef, type MentorMessage } from '@/utils/mentor-api';
 
 type MentorChatProps = {
@@ -76,9 +77,18 @@ export function MentorChat({ lesson, subtitle, onClose, bottomPadding, safeAreaE
     }
   }
 
-  function startOver() {
-    setMessages([]);
-    setError(null);
+  /** The conversation is saved on the device, so clearing it cannot be undone. */
+  function askStartOver() {
+    confirmDestructive({
+      title: t.mentor.startOverConfirmTitle,
+      message: t.mentor.startOverConfirmMessage,
+      confirmLabel: t.mentor.startOverConfirmLabel,
+      cancelLabel: t.common.cancel,
+      onConfirm: () => {
+        setMessages([]);
+        setError(null);
+      },
+    });
   }
 
   return (
@@ -102,7 +112,7 @@ export function MentorChat({ lesson, subtitle, onClose, bottomPadding, safeAreaE
               )}
             </View>
             {messages.length > 0 && !isLoading && (
-              <IconButton icon="plus" accessibilityLabel={t.mentor.startOverLabel} onPress={startOver} />
+              <IconButton icon="plus" accessibilityLabel={t.mentor.startOverLabel} onPress={askStartOver} />
             )}
             {onClose && <Button title={t.common.close} variant="ghost" onPress={onClose} />}
           </View>

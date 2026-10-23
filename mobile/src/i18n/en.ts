@@ -134,6 +134,9 @@ export const en: Dictionary = {
     send: 'Send',
     startOver: 'Start over',
     startOverLabel: 'New conversation',
+    startOverConfirmTitle: 'Clear this conversation?',
+    startOverConfirmMessage: 'All messages in this conversation will be deleted. This cannot be undone.',
+    startOverConfirmLabel: 'Clear',
     disclaimer: 'The mentor is an AI: its answers may contain mistakes.',
   },
   mentorErrors: {
