@@ -81,6 +81,17 @@ const courseInfos: CourseInfo[] = [
     level: 'intermediate',
   },
   {
+    id: 'kbu-blm113',
+    title: {
+      fr: 'Introduction au génie informatique (BLM113)',
+      en: 'Introduction to Computer Engineering (BLM113)',
+      tr: 'Bilgisayar Mühendisliğine Giriş (BLM113)',
+    },
+    badge: 'CENG',
+    group: 'year1',
+    level: 'beginner',
+  },
+  {
     id: 'kbu-cme225',
     title: {
       fr: 'Programmation orientée objet (CME225)',
