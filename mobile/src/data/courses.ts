@@ -273,6 +273,17 @@ const courseInfos: CourseInfo[] = [
     group: 'year4',
     level: 'intermediate',
   },
+  {
+    id: 'kbu-blm429',
+    title: {
+      fr: 'Introduction au traitement d’images (BLM429)',
+      en: 'Introduction to Image Processing (BLM429)',
+      tr: 'Görüntü İşlemeye Giriş (BLM429)',
+    },
+    badge: 'Img',
+    group: 'year4',
+    level: 'intermediate',
+  },
 ];
 
 const coursesByLanguage = new Map<Language, Course[]>();
