@@ -84,6 +84,9 @@ export const fr = {
     summary: (courses: number, lessons: number) => `${courses} parcours · ${lessons} leçons`,
     inProgress: 'En cours',
     toDiscover: 'À découvrir',
+    filterLabel: 'Filtrer les parcours par année',
+    filters: { all: 'Tous', basics: 'Bases', year1: '1re', year2: '2e', year3: '3e', year4: '4e' },
+    empty: 'Aucun parcours dans ce groupe pour l’instant.',
   },
   course: {
     fallbackTitle: 'Parcours',

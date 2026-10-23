@@ -8,12 +8,18 @@ import { lessonsByCourse, localizeLesson, type Lesson } from '@/data/lessons';
 /** Displayed through the `levels` texts of the current language. */
 export type CourseLevel = 'beginner' | 'intermediate' | 'advanced';
 
+/** Where a course sits in the KBU curriculum; 'basics' for the general introductory courses. */
+export const COURSE_GROUPS = ['basics', 'year1', 'year2', 'year3', 'year4'] as const;
+export type CourseGroup = (typeof COURSE_GROUPS)[number];
+
 /** A course resolved to one language: what the screens use. */
 export type Course = {
   id: string;
   title: string;
   /** Short label shown in the course badge, e.g. "Py". */
   badge: string;
+  /** Only used to sort courses: every course is open to every student. */
+  group: CourseGroup;
   level: CourseLevel;
   /** Lessons are completed in order: the first `lessonsCompleted` ones are done. */
   lessonsCompleted: number;
@@ -30,6 +36,7 @@ const courseInfos: CourseInfo[] = [
     id: 'python-basics',
     title: { fr: 'Les bases de Python', en: 'Python basics', tr: 'Python temelleri' },
     badge: 'Py',
+    group: 'basics',
     level: 'beginner',
     lessonsCompleted: 0,
   },
@@ -37,6 +44,7 @@ const courseInfos: CourseInfo[] = [
     id: 'javascript-essentials',
     title: { fr: 'JavaScript essentiel', en: 'JavaScript essentials', tr: 'Temel JavaScript' },
     badge: 'JS',
+    group: 'basics',
     level: 'beginner',
     lessonsCompleted: 0,
   },
@@ -44,6 +52,7 @@ const courseInfos: CourseInfo[] = [
     id: 'html-css',
     title: { fr: 'HTML & CSS', en: 'HTML & CSS', tr: 'HTML ve CSS' },
     badge: '</>',
+    group: 'basics',
     level: 'beginner',
     lessonsCompleted: 0,
   },
@@ -51,6 +60,7 @@ const courseInfos: CourseInfo[] = [
     id: 'algorithms',
     title: { fr: 'Algorithmique', en: 'Algorithms', tr: 'Algoritmalar' },
     badge: 'Algo',
+    group: 'basics',
     level: 'intermediate',
     lessonsCompleted: 0,
   },
@@ -59,6 +69,7 @@ const courseInfos: CourseInfo[] = [
     id: 'kbu-blm111',
     title: { fr: 'Programmation I (BLM111)', en: 'Programming I (BLM111)', tr: 'Programlama Dilleri I (BLM111)' },
     badge: 'C',
+    group: 'year1',
     level: 'beginner',
     lessonsCompleted: 0,
   },
@@ -66,6 +77,7 @@ const courseInfos: CourseInfo[] = [
     id: 'kbu-blm112',
     title: { fr: 'Programmation II (BLM112)', en: 'Programming II (BLM112)', tr: 'Programlama Dilleri II (BLM112)' },
     badge: 'C II',
+    group: 'year1',
     level: 'intermediate',
     lessonsCompleted: 0,
   },
@@ -77,6 +89,7 @@ const courseInfos: CourseInfo[] = [
       tr: 'Nesne Yönelimli Programlama (CME225)',
     },
     badge: 'Java',
+    group: 'year2',
     level: 'intermediate',
     lessonsCompleted: 0,
   },
@@ -84,6 +97,7 @@ const courseInfos: CourseInfo[] = [
     id: 'kbu-cme227',
     title: { fr: 'Structures de données (CME227)', en: 'Data Structures (CME227)', tr: 'Veri Yapıları (CME227)' },
     badge: 'DS',
+    group: 'year2',
     level: 'intermediate',
     lessonsCompleted: 0,
   },
@@ -91,6 +105,7 @@ const courseInfos: CourseInfo[] = [
     id: 'kbu-blm221',
     title: { fr: 'Circuits logiques (BLM221)', en: 'Logic Circuits (BLM221)', tr: 'Mantık Devreleri (BLM221)' },
     badge: 'Bool',
+    group: 'year2',
     level: 'beginner',
     lessonsCompleted: 0,
   },
@@ -102,6 +117,7 @@ const courseInfos: CourseInfo[] = [
       tr: 'Veritabanı Yönetimi (CME226)',
     },
     badge: 'SQL',
+    group: 'year2',
     level: 'beginner',
     lessonsCompleted: 0,
   },
@@ -113,6 +129,7 @@ const courseInfos: CourseInfo[] = [
       tr: 'İnternet Tabanlı Programlama (CME228)',
     },
     badge: 'PHP',
+    group: 'year2',
     level: 'beginner',
     lessonsCompleted: 0,
   },
@@ -124,6 +141,7 @@ const courseInfos: CourseInfo[] = [
       tr: 'Ayrık Matematik (BLM220)',
     },
     badge: 'Math',
+    group: 'year2',
     level: 'intermediate',
     lessonsCompleted: 0,
   },
@@ -135,6 +153,7 @@ const courseInfos: CourseInfo[] = [
       tr: 'İşletim Sistemleri (CME324)',
     },
     badge: 'OS',
+    group: 'year3',
     level: 'intermediate',
     lessonsCompleted: 0,
   },
@@ -146,6 +165,7 @@ const courseInfos: CourseInfo[] = [
       tr: 'Bilgisayar Ağları (CME326)',
     },
     badge: 'Net',
+    group: 'year3',
     level: 'intermediate',
     lessonsCompleted: 0,
   },
@@ -153,6 +173,7 @@ const courseInfos: CourseInfo[] = [
     id: 'kbu-blm431',
     title: { fr: 'Intelligence artificielle (BLM431)', en: 'Artificial Intelligence (BLM431)', tr: 'Yapay Zeka (BLM431)' },
     badge: 'AI',
+    group: 'year4',
     level: 'intermediate',
     lessonsCompleted: 0,
   },
@@ -164,6 +185,7 @@ const courseInfos: CourseInfo[] = [
       tr: 'Bilgisayar ve Ağ Güvenliği (BLM446)',
     },
     badge: 'Sec',
+    group: 'year4',
     level: 'intermediate',
     lessonsCompleted: 0,
   },

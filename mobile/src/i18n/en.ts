@@ -80,6 +80,9 @@ export const en: Dictionary = {
     summary: (courses: number, lessons: number) => `${courses} courses · ${lessons} lessons`,
     inProgress: 'In progress',
     toDiscover: 'To discover',
+    filterLabel: 'Filter courses by year',
+    filters: { all: 'All', basics: 'Basics', year1: 'Year 1', year2: 'Year 2', year3: 'Year 3', year4: 'Year 4' },
+    empty: 'No course in this group yet.',
   },
   course: {
     fallbackTitle: 'Course',

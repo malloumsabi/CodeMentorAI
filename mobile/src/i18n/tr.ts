@@ -80,6 +80,9 @@ export const tr: Dictionary = {
     summary: (courses: number, lessons: number) => `${courses} kurs · ${lessons} ders`,
     inProgress: 'Devam edenler',
     toDiscover: 'Keşfet',
+    filterLabel: 'Kursları sınıfa göre filtrele',
+    filters: { all: 'Tümü', basics: 'Temel', year1: '1. sınıf', year2: '2. sınıf', year3: '3. sınıf', year4: '4. sınıf' },
+    empty: 'Bu grupta henüz kurs yok.',
   },
   course: {
     fallbackTitle: 'Kurs',
