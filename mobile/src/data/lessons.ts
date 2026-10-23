@@ -16,6 +16,7 @@ import { blm429Lessons } from '@/data/kbu/blm429';
 import { blm111Lessons } from '@/data/kbu/blm111';
 import { blm112Lessons } from '@/data/kbu/blm112';
 import { cme225Lessons } from '@/data/kbu/cme225';
+import { cme227Lessons } from '@/data/kbu/cme227';
 import { kbuLessonsByCourse } from '@/data/kbu-lessons';
 import type { Language, Localized } from '@/i18n/languages';
 
@@ -696,6 +697,7 @@ export const lessonsByCourse: Record<string, LessonSource[]> = {
     },
   ],
   ...kbuLessonsByCourse,
+  'kbu-cme227': cme227Lessons,
   'kbu-cme225': cme225Lessons,
   'kbu-blm112': blm112Lessons,
   'kbu-blm111': blm111Lessons,
