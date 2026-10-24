@@ -84,6 +84,10 @@ export const en: Dictionary = {
     filterLabel: 'Filter courses by year',
     filters: { all: 'All', basics: 'Basics', year1: 'Year 1', year2: 'Year 2', year3: 'Year 3', year4: 'Year 4' },
     empty: 'No course in this group yet.',
+    searchPlaceholder: 'Search: name, code (BLM221) or topic',
+    searchLabel: 'Search courses',
+    results: (count: number) => (count === 1 ? '1 result' : `${count} results`),
+    noResults: (query: string) => `No course matches “${query}”.`,
   },
   course: {
     fallbackTitle: 'Course',

@@ -84,6 +84,10 @@ export const tr: Dictionary = {
     filterLabel: 'Kursları sınıfa göre filtrele',
     filters: { all: 'Tümü', basics: 'Temel', year1: '1. sınıf', year2: '2. sınıf', year3: '3. sınıf', year4: '4. sınıf' },
     empty: 'Bu grupta henüz kurs yok.',
+    searchPlaceholder: 'Ara: ad, kod (BLM221) veya konu',
+    searchLabel: 'Kurs ara',
+    results: (count: number) => `${count} sonuç`,
+    noResults: (query: string) => `“${query}” ile eşleşen kurs yok.`,
   },
   course: {
     fallbackTitle: 'Kurs',

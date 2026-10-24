@@ -88,6 +88,10 @@ export const fr = {
     filterLabel: 'Filtrer les parcours par année',
     filters: { all: 'Tous', basics: 'Bases', year1: '1re', year2: '2e', year3: '3e', year4: '4e' },
     empty: 'Aucun parcours dans ce groupe pour l’instant.',
+    searchPlaceholder: 'Rechercher : nom, code (BLM221) ou sujet',
+    searchLabel: 'Rechercher un parcours',
+    results: (count: number) => (count === 1 ? '1 résultat' : `${count} résultats`),
+    noResults: (query: string) => `Aucun parcours ne correspond à « ${query} ».`,
   },
   course: {
     fallbackTitle: 'Parcours',

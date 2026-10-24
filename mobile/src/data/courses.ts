@@ -326,6 +326,27 @@ export function getGroupForYear(year: StudyYear): CourseGroup | undefined {
   return COURSE_GROUPS.find((group) => group === year);
 }
 
+/** Lowercase without accents, so that "veri", "VERİ" and "Veri" match, as do "ecole" and "école". */
+function normalizeForSearch(text: string) {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/ı/g, 'i');
+}
+
+/** The courses whose title, code or lesson titles contain every word of the query. */
+export function searchCourses(list: Course[], query: string) {
+  const words = normalizeForSearch(query).split(/\s+/).filter(Boolean);
+  if (words.length === 0) {
+    return list;
+  }
+  return list.filter((course) => {
+    const text = normalizeForSearch([course.id, course.title, ...course.lessons.map((lesson) => lesson.title)].join(' '));
+    return words.every((word) => text.includes(word));
+  });
+}
+
 /** The course to resume first: the most advanced one that is started but not finished. */
 export function getCurrentCourse(list: Course[]) {
   return list

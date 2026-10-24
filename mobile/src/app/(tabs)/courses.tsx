@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, TextInput, View } from 'react-native';
 
 import { CourseCard } from '@/components/home/course-card';
 import { CourseRow } from '@/components/home/course-row';
@@ -7,10 +7,11 @@ import { Screen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
 import { Label } from '@/components/ui/label';
 import { SegmentedPicker } from '@/components/ui/segmented-picker';
-import { Spacing } from '@/constants/theme';
-import { COURSE_GROUPS, getGroupForYear, type CourseGroup } from '@/data/courses';
+import { Radius, Spacing } from '@/constants/theme';
+import { COURSE_GROUPS, getGroupForYear, searchCourses, type CourseGroup } from '@/data/courses';
 import { useProfile, type StudyYear } from '@/hooks/use-profile';
 import { useCourses } from '@/hooks/use-progress';
+import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 
 type CourseFilter = 'all' | CourseGroup;
@@ -27,16 +28,57 @@ export default function CoursesScreen() {
   const courses = useCourses();
   const { profile } = useProfile();
   const { t } = useI18n();
+  const theme = useTheme();
   const [filter, setFilter] = useState<CourseFilter>(() => defaultFilter(profile?.year));
+  const [query, setQuery] = useState('');
+
+  const isSearching = query.trim() !== '';
+  const lessonsTotal = courses.reduce((total, course) => total + course.lessonsTotal, 0);
+  const filterOptions = FILTERS.map((value) => ({ value, label: t.courses.filters[value] }));
+
+  const searchField = (
+    <TextInput
+      value={query}
+      onChangeText={setQuery}
+      placeholder={t.courses.searchPlaceholder}
+      placeholderTextColor={theme.textSecondary}
+      accessibilityLabel={t.courses.searchLabel}
+      autoCorrect={false}
+      autoCapitalize="none"
+      returnKeyType="search"
+      clearButtonMode="while-editing"
+      style={[styles.search, { color: theme.text, backgroundColor: theme.backgroundElement, borderColor: theme.border }]}
+    />
+  );
+
+  // A search looks through every course, whatever the year filter.
+  if (isSearching) {
+    const results = searchCourses(courses, query);
+    return (
+      <Screen eyebrow={t.courses.summary(courses.length, lessonsTotal)} title={t.courses.title}>
+        {searchField}
+        {results.length === 0 ? (
+          <ThemedText themeColor="textSecondary">{t.courses.noResults(query.trim())}</ThemedText>
+        ) : (
+          <View>
+            <Label style={styles.listLabel}>{t.courses.results(results.length)}</Label>
+            {results.map((course) => (
+              <CourseRow key={course.id} course={course} showProgress={course.lessonsCompleted > 0} />
+            ))}
+          </View>
+        )}
+      </Screen>
+    );
+  }
 
   const shown = filter === 'all' ? courses : courses.filter((course) => course.group === filter);
   const started = shown.filter((course) => course.lessonsCompleted > 0);
   const notStarted = shown.filter((course) => course.lessonsCompleted === 0);
-  const lessonsTotal = courses.reduce((total, course) => total + course.lessonsTotal, 0);
-  const filterOptions = FILTERS.map((value) => ({ value, label: t.courses.filters[value] }));
 
   return (
     <Screen eyebrow={t.courses.summary(courses.length, lessonsTotal)} title={t.courses.title}>
+      {searchField}
+
       <SegmentedPicker
         options={filterOptions}
         value={filter}
@@ -69,6 +111,13 @@ export default function CoursesScreen() {
 }
 
 const styles = StyleSheet.create({
+  search: {
+    minHeight: 48,
+    paddingHorizontal: Spacing.three,
+    borderRadius: Radius.medium,
+    borderWidth: 1,
+    fontSize: 16,
+  },
   section: {
     gap: Spacing.two + 2,
   },
