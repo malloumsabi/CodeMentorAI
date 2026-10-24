@@ -2,6 +2,7 @@ import type { Dictionary } from '@/i18n/fr';
 import { DEFAULT_LANGUAGE, getDictionary, isLanguage, LANGUAGE_NAMES, type Language } from '@/i18n/languages';
 import { claude, describeError } from '@/server/claude';
 import { findLesson, lessonText } from '@/server/lesson-context';
+import { checkRateLimit, MENTOR_LIMIT, rateLimitedResponse } from '@/server/rate-limit';
 import {
   MAX_HISTORY_MESSAGES,
   MAX_MESSAGE_LENGTH,
@@ -91,6 +92,11 @@ export async function POST(request: Request) {
   const body = (await request.json().catch(() => null)) as { language?: unknown; lesson?: unknown } | null;
   const language = isLanguage(body?.language) ? body.language : DEFAULT_LANGUAGE;
   const t = getDictionary(language);
+
+  const retryAfter = checkRateLimit(request, MENTOR_LIMIT);
+  if (retryAfter !== null) {
+    return rateLimitedResponse(t.mentorErrors.rateLimited, retryAfter);
+  }
 
   if (!process.env.ANTHROPIC_API_KEY) {
     return errorResponse(t.mentorErrors.noApiKey, 500);
