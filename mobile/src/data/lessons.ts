@@ -25,7 +25,6 @@ import { cme324Lessons } from '@/data/kbu/cme324';
 import { cme326Lessons } from '@/data/kbu/cme326';
 import { blm431Lessons } from '@/data/kbu/blm431';
 import { blm446Lessons } from '@/data/kbu/blm446';
-import { kbuLessonsByCourse } from '@/data/kbu-lessons';
 import type { Language, Localized } from '@/i18n/languages';
 
 /** A text that is either the same in every language (some code) or written per language. */
@@ -704,7 +703,6 @@ export const lessonsByCourse: Record<string, LessonSource[]> = {
       },
     },
   ],
-  ...kbuLessonsByCourse,
   'kbu-blm446': blm446Lessons,
   'kbu-blm431': blm431Lessons,
   'kbu-cme326': cme326Lessons,
