@@ -4,6 +4,7 @@ import { AccessibilityInfo, Pressable, ScrollView, StyleSheet, View } from 'reac
 
 import { ThemedText } from '@/components/themed-text';
 import { Icon } from '@/components/ui/icon';
+import { Label } from '@/components/ui/label';
 import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
@@ -16,11 +17,17 @@ type CodeBlockProps = {
   language?: string;
 };
 
-/** Monospace code that scrolls horizontally instead of wrapping, so indentation stays readable. */
+/**
+ * Monospace code that scrolls horizontally instead of wrapping, so indentation stays readable.
+ * The line numbers sit outside the scroll view, so they stay visible while scrolling.
+ */
 export function CodeBlock({ code, language }: CodeBlockProps) {
   const theme = useTheme();
   const { t } = useI18n();
   const [copied, setCopied] = useState(false);
+  // A trailing newline would add an empty numbered line.
+  const shownCode = code.replace(/\n$/, '');
+  const lineCount = shownCode.split('\n').length;
 
   useEffect(() => {
     if (!copied) {
@@ -40,9 +47,7 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
   return (
     <View style={[styles.container, { backgroundColor: theme.backgroundElement, borderColor: theme.border }]}>
       <View style={[styles.header, { borderBottomColor: theme.border }]}>
-        <ThemedText type="label" themeColor="textSecondary">
-          {language ?? ''}
-        </ThemedText>
+        <Label>{language || t.common.code}</Label>
         <Pressable
           role="button"
           accessibilityLabel={copied ? t.common.copied : t.common.copyCode}
@@ -52,11 +57,21 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
           <Icon name={copied ? 'check' : 'copy'} size={16} color={copied ? 'success' : 'textSecondary'} />
         </Pressable>
       </View>
-      <ScrollView horizontal contentContainerStyle={styles.content}>
-        <ThemedText style={styles.code} selectable>
-          {code}
-        </ThemedText>
-      </ScrollView>
+      <View style={styles.body}>
+        <View
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+          style={[styles.gutter, { borderRightColor: theme.border }]}>
+          <ThemedText themeColor="textSecondary" style={[styles.code, styles.lineNumbers]}>
+            {Array.from({ length: lineCount }, (_, index) => index + 1).join('\n')}
+          </ThemedText>
+        </View>
+        <ScrollView horizontal contentContainerStyle={styles.content}>
+          <ThemedText style={styles.code} selectable>
+            {shownCode}
+          </ThemedText>
+        </ScrollView>
+      </View>
     </View>
   );
 }
@@ -83,6 +98,18 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.6,
+  },
+  body: {
+    flexDirection: 'row',
+  },
+  gutter: {
+    paddingVertical: Spacing.three,
+    paddingHorizontal: Spacing.two + 2,
+    borderRightWidth: 1,
+  },
+  lineNumbers: {
+    textAlign: 'right',
+    opacity: 0.7,
   },
   content: {
     padding: Spacing.three,

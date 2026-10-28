@@ -5,13 +5,14 @@ import { useTheme } from '@/hooks/use-theme';
 
 /** The app's icons: SF Symbols on iOS, Material Symbols on Android and web. */
 const ICONS = {
+  appearance: { ios: 'circle.lefthalf.filled', android: 'contrast', web: 'contrast' },
   arrowRight: { ios: 'arrow.right', android: 'arrow_forward', web: 'arrow_forward' },
   arrowUp: { ios: 'arrow.up', android: 'arrow_upward', web: 'arrow_upward' },
   check: { ios: 'checkmark', android: 'check', web: 'check' },
   chevronRight: { ios: 'chevron.right', android: 'chevron_right', web: 'chevron_right' },
+  close: { ios: 'xmark', android: 'close', web: 'close' },
   code: { ios: 'chevron.left.forwardslash.chevron.right', android: 'code', web: 'code' },
   copy: { ios: 'doc.on.doc', android: 'content_copy', web: 'content_copy' },
-  appearance: { ios: 'circle.lefthalf.filled', android: 'contrast', web: 'contrast' },
   flame: { ios: 'flame.fill', android: 'local_fire_department', web: 'local_fire_department' },
   language: { ios: 'globe', android: 'language', web: 'language' },
   plus: { ios: 'plus', android: 'add', web: 'add' },

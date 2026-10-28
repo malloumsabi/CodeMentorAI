@@ -12,7 +12,8 @@ import { Platform } from 'react-native';
  * - primary: main actions (buttons, active tab, progress). `onPrimary` is the text drawn on top of it.
  *   `primarySoft` / `primaryBorder`: tinted surface for the one card that should stand out.
  * - accent: code and AI-related highlights.
- * - success / warning / error: feedback (correct answer, hint, mistake).
+ * - success / warning / error: feedback (correct answer, hint, mistake); `successSoft` / `errorSoft`
+ *   are their tinted backgrounds.
  */
 export const Colors = {
   light: {
@@ -28,8 +29,10 @@ export const Colors = {
     primaryBorder: '#C7CCFA',
     accent: '#0E7490',
     success: '#15803D',
+    successSoft: '#ECFDF3',
     warning: '#B45309',
     error: '#DC2626',
+    errorSoft: '#FEF2F2',
   },
   dark: {
     text: '#E6EAF2',
@@ -44,8 +47,10 @@ export const Colors = {
     primaryBorder: '#2B3366',
     accent: '#22D3EE',
     success: '#4ADE80',
+    successSoft: '#0F2A1A',
     warning: '#FBBF24',
     error: '#F87171',
+    errorSoft: '#2D1416',
   },
 } as const;
 

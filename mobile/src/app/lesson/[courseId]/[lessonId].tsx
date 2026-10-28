@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { CourseBadge } from '@/components/home/course-badge';
 import { CodeBlock } from '@/components/lesson/code-block';
 import { ExerciseCard } from '@/components/lesson/exercise-card';
 import { LessonNavigation } from '@/components/lesson/lesson-navigation';
@@ -10,9 +11,11 @@ import { PracticeQuiz } from '@/components/lesson/practice-quiz';
 import { QuizCard } from '@/components/lesson/quiz-card';
 import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui/button';
-import { ProgressBar } from '@/components/ui/progress-bar';
+import { Label } from '@/components/ui/label';
+import { WeekTrack } from '@/components/ui/week-track';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useCourses, useProgress } from '@/hooks/use-progress';
+import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 
 export default function LessonScreen() {
@@ -21,16 +24,15 @@ export default function LessonScreen() {
   const { completeLesson } = useProgress();
   const [isQuizSolved, setIsQuizSolved] = useState(false);
   const { t } = useI18n();
+  const theme = useTheme();
 
   const course = useCourses().find((item) => item.id === courseId);
   const lessonIndex = course ? course.lessons.findIndex((item) => item.id === lessonId) : -1;
   const lesson = course?.lessons[lessonIndex];
 
-  const contentStyle = [styles.content, { paddingBottom: insets.bottom + Spacing.four }];
-
   if (!course || !lesson) {
     return (
-      <ScrollView contentContainerStyle={contentStyle}>
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + Spacing.four }]}>
         <Stack.Screen options={{ title: t.lesson.fallbackTitle }} />
         <ThemedText type="heading">{t.lesson.notFound}</ThemedText>
         <ThemedText themeColor="textSecondary">{t.lesson.notFoundHint}</ThemedText>
@@ -62,82 +64,122 @@ export default function LessonScreen() {
   }
 
   return (
-    <ScrollView contentContainerStyle={contentStyle}>
-      <Stack.Screen options={{ title: course.title }} />
+    <View style={styles.screen}>
+      <ScrollView contentContainerStyle={styles.content}>
+        <Stack.Screen options={{ title: course.title }} />
 
-      <View style={styles.header}>
-        <ThemedText type="small" themeColor={isReview ? 'success' : 'textSecondary'}>
-          {lesson.week
-            ? t.lesson.weekCounter(lesson.week, course.lessonsTotal)
-            : t.lesson.counter(lessonIndex + 1, course.lessonsTotal)}
-          {isReview ? t.lesson.alreadyDone : ''}
-        </ThemedText>
-        <ThemedText role="heading" type="heading">
-          {lesson.title}
-        </ThemedText>
-        <ProgressBar
-          progress={lessonIndex / course.lessonsTotal}
-          accessibilityLabel={t.lesson.positionOf(course.title)}
+        <View style={styles.header}>
+          <View style={styles.eyebrow}>
+            <CourseBadge label={course.badge} />
+            <Label themeColor={isReview ? 'success' : 'textSecondary'} style={styles.eyebrowText}>
+              {(lesson.week
+                ? t.lesson.weekCounter(lesson.week, course.lessonsTotal)
+                : t.lesson.counter(lessonIndex + 1, course.lessonsTotal)) + (isReview ? t.lesson.alreadyDone : '')}
+            </Label>
+          </View>
+          <ThemedText role="heading" type="heading">
+            {lesson.title}
+          </ThemedText>
+          <WeekTrack course={course} currentLessonId={lesson.id} accessibilityLabel={t.lesson.positionOf(course.title)} />
+        </View>
+
+        {lesson.blocks.map((block, index) => {
+          switch (block.type) {
+            case 'code':
+              return <CodeBlock key={index} code={block.code} />;
+            case 'heading':
+              return (
+                <ThemedText key={index} role="heading" type="section" style={styles.blockHeading}>
+                  {block.text}
+                </ThemedText>
+              );
+            case 'exercise':
+              return <ExerciseCard key={index} question={block.question} code={block.code} solution={block.solution} />;
+            default:
+              return (
+                <ThemedText key={index} style={styles.paragraph}>
+                  {block.text}
+                </ThemedText>
+              );
+          }
+        })}
+
+        <Button
+          title={t.lesson.askMentor}
+          variant="secondary"
+          onPress={() =>
+            router.push({
+              pathname: '/lesson/[courseId]/[lessonId]/mentor',
+              params: { courseId: course.id, lessonId: lesson.id },
+            })
+          }
         />
+
+        <QuizCard quiz={lesson.quiz} onCorrectAnswer={() => setIsQuizSolved(true)} />
+
+        <LessonNavigation course={course} lessonIndex={lessonIndex} />
+
+        <PracticeQuiz key={lesson.id} lesson={{ courseId: course.id, lessonId: lesson.id }} />
+      </ScrollView>
+
+      {/* Always in reach, like the "continue" button of learning apps. */}
+      <View
+        style={[
+          styles.bottomBar,
+          { backgroundColor: theme.background, borderTopColor: theme.border, paddingBottom: insets.bottom + Spacing.three },
+        ]}>
+        <View style={styles.bottomBarContent}>
+          {isReview ? (
+            <Button title={t.common.back} variant="secondary" onPress={() => router.back()} />
+          ) : (
+            <Button title={finishTitle} disabled={!isQuizSolved} onPress={finishLesson} />
+          )}
+        </View>
       </View>
-
-      {lesson.blocks.map((block, index) => {
-        switch (block.type) {
-          case 'code':
-            return <CodeBlock key={index} code={block.code} />;
-          case 'heading':
-            return (
-              <ThemedText key={index} role="heading" type="section" style={styles.blockHeading}>
-                {block.text}
-              </ThemedText>
-            );
-          case 'exercise':
-            return <ExerciseCard key={index} question={block.question} code={block.code} solution={block.solution} />;
-          default:
-            return <ThemedText key={index}>{block.text}</ThemedText>;
-        }
-      })}
-
-      <Button
-        title={t.lesson.askMentor}
-        variant="secondary"
-        onPress={() =>
-          router.push({
-            pathname: '/lesson/[courseId]/[lessonId]/mentor',
-            params: { courseId: course.id, lessonId: lesson.id },
-          })
-        }
-      />
-
-      <QuizCard quiz={lesson.quiz} onCorrectAnswer={() => setIsQuizSolved(true)} />
-
-      {isReview ? (
-        <Button title={t.common.back} variant="secondary" onPress={() => router.back()} />
-      ) : (
-        <Button title={finishTitle} disabled={!isQuizSolved} onPress={finishLesson} />
-      )}
-
-      <LessonNavigation course={course} lessonIndex={lessonIndex} />
-
-      <PracticeQuiz key={lesson.id} lesson={{ courseId: course.id, lessonId: lesson.id }} />
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+  },
   content: {
     width: '100%',
     maxWidth: MaxContentWidth,
     alignSelf: 'center',
     paddingHorizontal: Spacing.three,
     paddingTop: Spacing.three,
+    paddingBottom: Spacing.four,
     gap: Spacing.three,
   },
   header: {
-    gap: Spacing.two,
+    gap: Spacing.three,
     marginBottom: Spacing.two,
+  },
+  eyebrow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two + 2,
+  },
+  eyebrowText: {
+    flex: 1,
+  },
+  paragraph: {
+    fontSize: 16,
+    lineHeight: 26,
   },
   blockHeading: {
     marginTop: Spacing.two,
+  },
+  bottomBar: {
+    borderTopWidth: 1,
+    paddingTop: Spacing.three,
+  },
+  bottomBarContent: {
+    width: '100%',
+    maxWidth: MaxContentWidth,
+    alignSelf: 'center',
+    paddingHorizontal: Spacing.three,
   },
 });

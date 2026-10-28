@@ -11,6 +11,7 @@ export const fr = {
     save: 'Enregistrer',
     copyCode: 'Copier le code',
     copied: 'Copié',
+    code: 'Code',
     progressOf: (title: string) => `Progression ${title}`,
   },
   tabs: {
