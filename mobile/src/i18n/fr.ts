@@ -44,7 +44,10 @@ export const fr = {
     lessonsDone: 'Leçons terminées',
     coursesDone: 'Parcours terminés',
     overallProgress: 'Progression globale',
+    streak: 'Jours d’affilée',
+    streakA11y: (days: number) => `Série : ${days} jour${days > 1 ? 's' : ''} d’affilée`,
     settings: 'Réglages',
+    preferences: 'Préférences',
     language: 'Langue',
     appearance: 'Apparence',
     appearances: {
@@ -175,6 +178,13 @@ export const fr = {
     disclaimer: 'Le mentor est une IA : ses réponses peuvent contenir des erreurs.',
   },
   /** Also used by the server route, so the mentor's errors follow the app language. */
+  dailyGoal: {
+    title: 'Objectif du jour',
+    option: (lessons: number) => `${lessons} leçon${lessons > 1 ? 's' : ''} par jour`,
+    remaining: (lessons: number) => `Encore ${lessons} leçon${lessons > 1 ? 's' : ''} aujourd’hui`,
+    reached: 'Objectif atteint, à demain !',
+    a11y: (done: number, goal: number) => `Objectif du jour : ${done} leçon${done > 1 ? 's' : ''} sur ${goal}`,
+  },
   mentorErrors: {
     unreachable: 'Impossible de joindre le serveur. Vérifie ta connexion et que `npx expo start` tourne.',
     interrupted: 'La réponse du mentor a été interrompue. Réessaie.',

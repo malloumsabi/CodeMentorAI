@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import { getCourses, type Course } from '@/data/courses';
 import { useI18n } from '@/i18n';
 import { DEFAULT_LANGUAGE } from '@/i18n/languages';
+import { toDayKey, type Activity } from '@/utils/activity';
 
 /** Progress only depends on course and lesson ids, which are the same in every language. */
 const courses = getCourses(DEFAULT_LANGUAGE);
@@ -11,6 +12,8 @@ const courses = getCourses(DEFAULT_LANGUAGE);
 /** Bump the version suffix if the stored shape or meaning changes (v2 counted lessons done in order). */
 const STORAGE_KEY = 'codementor/progress/v3';
 const V2_STORAGE_KEY = 'codementor/progress/v2';
+/** Kept apart from the progress so its shape (and the v3 key) stays the same. */
+const ACTIVITY_STORAGE_KEY = 'codementor/activity/v1';
 
 /** Ids of the completed lessons, by course id, in the order they were completed. */
 type Progress = Record<string, string[]>;
@@ -36,8 +39,15 @@ async function loadProgress(): Promise<Progress | null> {
   return storedV2 ? migrateV2(JSON.parse(storedV2)) : null;
 }
 
+async function loadActivity(): Promise<Activity | null> {
+  const stored = await AsyncStorage.getItem(ACTIVITY_STORAGE_KEY);
+  return stored ? JSON.parse(stored) : null;
+}
+
 type ProgressContextValue = {
   progress: Progress;
+  /** Lessons completed per day, for the streak and the daily goal. */
+  activity: Activity;
   isLoaded: boolean;
   completeLesson: (courseId: string, lessonId: string) => void;
   resetProgress: () => void;
@@ -47,13 +57,17 @@ const ProgressContext = createContext<ProgressContextValue | null>(null);
 
 export function ProgressProvider({ children }: { children: ReactNode }) {
   const [progress, setProgress] = useState<Progress>({});
+  const [activity, setActivity] = useState<Activity>({});
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    loadProgress()
-      .then((stored) => {
-        if (stored) {
-          setProgress(stored);
+    Promise.all([loadProgress(), loadActivity()])
+      .then(([storedProgress, storedActivity]) => {
+        if (storedProgress) {
+          setProgress(storedProgress);
+        }
+        if (storedActivity) {
+          setActivity(storedActivity);
         }
       })
       .catch((error) => console.warn('Could not load progress', error))
@@ -69,6 +83,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       return;
     }
     saveProgress({ ...progress, [courseId]: [...done, lessonId] });
+    const today = toDayKey(new Date());
+    saveActivity({ ...activity, [today]: (activity[today] ?? 0) + 1 });
   }
 
   function resetProgress() {
@@ -76,6 +92,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       return;
     }
     saveProgress({});
+    saveActivity({});
   }
 
   function saveProgress(next: Progress) {
@@ -85,8 +102,15 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     );
   }
 
+  function saveActivity(next: Activity) {
+    setActivity(next);
+    AsyncStorage.setItem(ACTIVITY_STORAGE_KEY, JSON.stringify(next)).catch((error) =>
+      console.warn('Could not save activity', error)
+    );
+  }
+
   return (
-    <ProgressContext.Provider value={{ progress, isLoaded, completeLesson, resetProgress }}>
+    <ProgressContext.Provider value={{ progress, activity, isLoaded, completeLesson, resetProgress }}>
       {children}
     </ProgressContext.Provider>
   );

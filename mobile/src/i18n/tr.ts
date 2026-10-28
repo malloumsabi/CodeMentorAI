@@ -41,7 +41,10 @@ export const tr: Dictionary = {
     lessonsDone: 'Tamamlanan dersler',
     coursesDone: 'Tamamlanan kurslar',
     overallProgress: 'Genel ilerleme',
+    streak: 'Günlük seri',
+    streakA11y: (days: number) => `Seri: üst üste ${days} gün`,
     settings: 'Ayarlar',
+    preferences: 'Tercihler',
     language: 'Dil',
     appearance: 'Görünüm',
     appearances: {
@@ -169,6 +172,13 @@ export const tr: Dictionary = {
     startOverConfirmMessage: 'Bu sohbetteki tüm mesajlar silinecek. Bu işlem geri alınamaz.',
     startOverConfirmLabel: 'Sil',
     disclaimer: 'Mentor bir yapay zekâdır: cevapları hata içerebilir.',
+  },
+  dailyGoal: {
+    title: 'Günlük hedef',
+    option: (lessons: number) => `Günde ${lessons} ders`,
+    remaining: (lessons: number) => `Bugün ${lessons} ders daha`,
+    reached: 'Hedefe ulaştın, yarın görüşürüz!',
+    a11y: (done: number, goal: number) => `Günlük hedef: ${goal} dersten ${done}`,
   },
   mentorErrors: {
     unreachable: 'Sunucuya ulaşılamıyor. Bağlantını ve `npx expo start` komutunun çalıştığını kontrol et.',

@@ -5,6 +5,7 @@ import { useColorScheme } from 'react-native';
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import { Colors } from '@/constants/theme';
 import { AppearanceProvider } from '@/hooks/use-appearance';
+import { DailyGoalProvider } from '@/hooks/use-daily-goal';
 import { ProfileProvider, useProfile } from '@/hooks/use-profile';
 import { ProgressProvider } from '@/hooks/use-progress';
 import { I18nProvider, useI18n } from '@/i18n';
@@ -38,8 +39,10 @@ export default function RootLayout() {
         <I18nProvider>
           <ProfileProvider>
             <ProgressProvider>
-              <AnimatedSplashOverlay />
-              <RootStack />
+              <DailyGoalProvider>
+                <AnimatedSplashOverlay />
+                <RootStack />
+              </DailyGoalProvider>
             </ProgressProvider>
           </ProfileProvider>
         </I18nProvider>
@@ -66,6 +69,7 @@ function RootStack() {
           options={{ presentation: 'modal', headerShown: false }}
         />
         <Stack.Screen name="edit-profile" options={{ presentation: 'modal', headerShown: false }} />
+        <Stack.Screen name="settings" options={{ presentation: 'modal', headerShown: false }} />
       </Stack.Protected>
 
       <Stack.Protected guard={needsWelcome}>

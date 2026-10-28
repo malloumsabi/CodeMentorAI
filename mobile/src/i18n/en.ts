@@ -41,7 +41,10 @@ export const en: Dictionary = {
     lessonsDone: 'Lessons completed',
     coursesDone: 'Courses completed',
     overallProgress: 'Overall progress',
+    streak: 'Day streak',
+    streakA11y: (days: number) => `Streak: ${days} day${days === 1 ? '' : 's'} in a row`,
     settings: 'Settings',
+    preferences: 'Preferences',
     language: 'Language',
     appearance: 'Appearance',
     appearances: {
@@ -168,6 +171,13 @@ export const en: Dictionary = {
     startOverConfirmMessage: 'All messages in this conversation will be deleted. This cannot be undone.',
     startOverConfirmLabel: 'Clear',
     disclaimer: 'The mentor is an AI: its answers may contain mistakes.',
+  },
+  dailyGoal: {
+    title: 'Daily goal',
+    option: (lessons: number) => `${lessons} lesson${lessons === 1 ? '' : 's'} a day`,
+    remaining: (lessons: number) => `${lessons} more lesson${lessons === 1 ? '' : 's'} today`,
+    reached: 'Goal reached, see you tomorrow!',
+    a11y: (done: number, goal: number) => `Daily goal: ${done} of ${goal} lessons`,
   },
   mentorErrors: {
     unreachable: 'Can’t reach the server. Check your connection and that `npx expo start` is running.',

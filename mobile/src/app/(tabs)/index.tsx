@@ -3,6 +3,8 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { CourseBadge } from '@/components/home/course-badge';
 import { CourseList } from '@/components/home/course-list';
+import { DailyGoalCard } from '@/components/home/daily-goal-card';
+import { StreakBadge } from '@/components/home/streak-badge';
 import { Avatar } from '@/components/profile/avatar';
 import { Screen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
@@ -49,13 +51,16 @@ export default function HomeScreen() {
       title={profile ? t.home.greeting(profile.name) : undefined}
       accessory={
         profile && (
-          <Pressable
-            role="button"
-            accessibilityLabel={t.tabs.profile}
-            onPress={() => router.navigate('/profile')}
-            hitSlop={8}>
-            <Avatar name={profile.name} />
-          </Pressable>
+          <View style={styles.accessory}>
+            <StreakBadge />
+            <Pressable
+              role="button"
+              accessibilityLabel={t.tabs.profile}
+              onPress={() => router.navigate('/profile')}
+              hitSlop={8}>
+              <Avatar name={profile.name} />
+            </Pressable>
+          </View>
         )
       }>
       {currentCourse && nextLesson ? (
@@ -111,6 +116,8 @@ export default function HomeScreen() {
         </Card>
       )}
 
+      <DailyGoalCard />
+
       <StatStrip stats={stats} />
 
       <View>
@@ -129,6 +136,11 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  accessory: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+  },
   resume: {
     padding: Spacing.four - 4,
     gap: Spacing.three,
