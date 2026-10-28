@@ -110,6 +110,8 @@ export const fr = {
     finalSection: (from: number, to: number) => `Final · Semaines ${from} à ${to}`,
     reviewMidterm: 'Réviser la vize',
     reviewFinal: 'Réviser le final',
+    midtermTag: 'Révision vize',
+    finalTag: 'Révision final',
   },
   lessonRow: {
     done: 'Terminée · Revoir',

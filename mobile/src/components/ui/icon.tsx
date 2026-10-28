@@ -14,6 +14,7 @@ const ICONS = {
   code: { ios: 'chevron.left.forwardslash.chevron.right', android: 'code', web: 'code' },
   copy: { ios: 'doc.on.doc', android: 'content_copy', web: 'content_copy' },
   flame: { ios: 'flame.fill', android: 'local_fire_department', web: 'local_fire_department' },
+  flag: { ios: 'flag.checkered', android: 'sports_score', web: 'sports_score' },
   language: { ios: 'globe', android: 'language', web: 'language' },
   plus: { ios: 'plus', android: 'add', web: 'add' },
   reset: { ios: 'arrow.counterclockwise', android: 'restart_alt', web: 'restart_alt' },

@@ -106,6 +106,8 @@ export const en: Dictionary = {
     finalSection: (from: number, to: number) => `Final · Weeks ${from} to ${to}`,
     reviewMidterm: 'Review the midterm',
     reviewFinal: 'Review the final',
+    midtermTag: 'Midterm review',
+    finalTag: 'Final review',
   },
   lessonRow: {
     done: 'Completed · Review',

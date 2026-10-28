@@ -10,12 +10,12 @@ import { LessonNavigation } from '@/components/lesson/lesson-navigation';
 import { PracticeQuiz } from '@/components/lesson/practice-quiz';
 import { QuizCard } from '@/components/lesson/quiz-card';
 import { ThemedText } from '@/components/themed-text';
+import { BottomBar } from '@/components/ui/bottom-bar';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { WeekTrack } from '@/components/ui/week-track';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useCourses, useProgress } from '@/hooks/use-progress';
-import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 
 export default function LessonScreen() {
@@ -24,7 +24,6 @@ export default function LessonScreen() {
   const { completeLesson } = useProgress();
   const [isQuizSolved, setIsQuizSolved] = useState(false);
   const { t } = useI18n();
-  const theme = useTheme();
 
   const course = useCourses().find((item) => item.id === courseId);
   const lessonIndex = course ? course.lessons.findIndex((item) => item.id === lessonId) : -1;
@@ -122,20 +121,13 @@ export default function LessonScreen() {
         <PracticeQuiz key={lesson.id} lesson={{ courseId: course.id, lessonId: lesson.id }} />
       </ScrollView>
 
-      {/* Always in reach, like the "continue" button of learning apps. */}
-      <View
-        style={[
-          styles.bottomBar,
-          { backgroundColor: theme.background, borderTopColor: theme.border, paddingBottom: insets.bottom + Spacing.three },
-        ]}>
-        <View style={styles.bottomBarContent}>
-          {isReview ? (
-            <Button title={t.common.back} variant="secondary" onPress={() => router.back()} />
-          ) : (
-            <Button title={finishTitle} disabled={!isQuizSolved} onPress={finishLesson} />
-          )}
-        </View>
-      </View>
+      <BottomBar>
+        {isReview ? (
+          <Button title={t.common.back} variant="secondary" onPress={() => router.back()} />
+        ) : (
+          <Button title={finishTitle} disabled={!isQuizSolved} onPress={finishLesson} />
+        )}
+      </BottomBar>
     </View>
   );
 }
@@ -171,15 +163,5 @@ const styles = StyleSheet.create({
   },
   blockHeading: {
     marginTop: Spacing.two,
-  },
-  bottomBar: {
-    borderTopWidth: 1,
-    paddingTop: Spacing.three,
-  },
-  bottomBarContent: {
-    width: '100%',
-    maxWidth: MaxContentWidth,
-    alignSelf: 'center',
-    paddingHorizontal: Spacing.three,
   },
 });

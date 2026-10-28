@@ -106,6 +106,8 @@ export const tr: Dictionary = {
     finalSection: (from: number, to: number) => `Final · ${from}–${to}. haftalar`,
     reviewMidterm: 'Vize tekrarı',
     reviewFinal: 'Final tekrarı',
+    midtermTag: 'Vize tekrarı',
+    finalTag: 'Final tekrarı',
   },
   lessonRow: {
     done: 'Tamamlandı · Tekrar et',
