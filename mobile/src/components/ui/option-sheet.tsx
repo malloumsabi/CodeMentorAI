@@ -2,7 +2,7 @@ import { Modal, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
-import { Icon } from '@/components/ui/icon';
+import { ChoiceList } from '@/components/ui/choice-list';
 import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -43,31 +43,16 @@ export function OptionSheet<T extends string>({
         <ThemedText type="section" role="heading" style={styles.title}>
           {title}
         </ThemedText>
-        <View role="radiogroup" accessibilityLabel={title}>
-          {options.map((option, index) => {
-            const isSelected = option.value === value;
-            return (
-              <Pressable
-                key={option.value}
-                role="radio"
-                accessibilityState={{ checked: isSelected }}
-                onPress={() => {
-                  onChange(option.value);
-                  onClose();
-                }}
-                style={({ pressed }) => [
-                  styles.option,
-                  index > 0 && { borderTopWidth: 1, borderTopColor: theme.border },
-                  pressed && { backgroundColor: theme.backgroundElement },
-                ]}>
-                <ThemedText type={isSelected ? 'smallBold' : 'small'} style={styles.optionLabel}>
-                  {option.label}
-                </ThemedText>
-                {isSelected && <Icon name="check" size={18} color="primary" />}
-              </Pressable>
-            );
-          })}
-        </View>
+        <ChoiceList
+          options={options}
+          value={value}
+          onChange={(next) => {
+            onChange(next);
+            onClose();
+          }}
+          accessibilityLabel={title}
+          inset={Spacing.four}
+        />
       </View>
     </Modal>
   );
@@ -98,16 +83,5 @@ const styles = StyleSheet.create({
   },
   title: {
     paddingBottom: Spacing.two,
-  },
-  option: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    minHeight: 52,
-    marginHorizontal: -Spacing.four,
-    paddingHorizontal: Spacing.four,
-  },
-  optionLabel: {
-    flex: 1,
-    fontSize: 16,
   },
 });

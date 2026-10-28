@@ -6,6 +6,7 @@ import { useTheme } from '@/hooks/use-theme';
 /** The app's icons: SF Symbols on iOS, Material Symbols on Android and web. */
 const ICONS = {
   appearance: { ios: 'circle.lefthalf.filled', android: 'contrast', web: 'contrast' },
+  arrowLeft: { ios: 'arrow.left', android: 'arrow_back', web: 'arrow_back' },
   arrowRight: { ios: 'arrow.right', android: 'arrow_forward', web: 'arrow_forward' },
   arrowUp: { ios: 'arrow.up', android: 'arrow_upward', web: 'arrow_upward' },
   check: { ios: 'checkmark', android: 'check', web: 'check' },
