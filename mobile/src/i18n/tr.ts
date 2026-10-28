@@ -153,6 +153,7 @@ export const tr: Dictionary = {
   },
   mentor: {
     title: 'Yapay Zekâ Mentor',
+    emptyTitle: 'Nasıl yardımcı olabilirim?',
     author: 'Mentor',
     about: (lesson: string, course: string) => `Konu: ${lesson} · ${course}`,
     welcome:

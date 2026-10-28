@@ -3,7 +3,6 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   TextInput,
@@ -11,6 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView, type Edge } from 'react-native-safe-area-context';
 
+import { EmptyState } from '@/components/mentor/empty-state';
 import { MessageBubble } from '@/components/mentor/message-bubble';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -50,6 +50,7 @@ export function MentorChat({ lesson, subtitle, onClose, bottomPadding, safeAreaE
   const suggestions = lesson ? t.mentor.lessonSuggestions : t.mentor.suggestions;
   const welcome: MentorMessage = { role: 'assistant', content: lesson ? t.mentor.lessonWelcome : t.mentor.welcome };
   const canSend = draft.trim().length > 0 && !isLoading && isLoaded;
+  const isEmpty = isLoaded && messages.length === 0 && !isLoading;
 
   async function send(text: string) {
     const question = text.trim();
@@ -120,10 +121,14 @@ export function MentorChat({ lesson, subtitle, onClose, bottomPadding, safeAreaE
           <ScrollView
             ref={scrollRef}
             style={styles.container}
-            contentContainerStyle={styles.messages}
+            contentContainerStyle={[styles.messages, isEmpty && styles.emptyMessages]}
             keyboardShouldPersistTaps="handled"
             onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: true })}>
-            <MessageBubble message={welcome} />
+            {isEmpty ? (
+              <EmptyState welcome={welcome.content} suggestions={suggestions} onPick={send} />
+            ) : (
+              <MessageBubble message={welcome} />
+            )}
             {messages.map((message, index) => (
               <MessageBubble key={index} message={message} />
             ))}
@@ -143,22 +148,6 @@ export function MentorChat({ lesson, subtitle, onClose, bottomPadding, safeAreaE
               <ThemedText type="small" themeColor="error" accessibilityLiveRegion="polite">
                 {error}
               </ThemedText>
-            )}
-
-            {isLoaded && messages.length === 0 && !isLoading && (
-              <View style={styles.suggestions} accessibilityLabel={t.mentor.suggestionsTitle}>
-                {suggestions.map((suggestion) => (
-                  <Pressable
-                    key={suggestion}
-                    role="button"
-                    onPress={() => send(suggestion)}
-                    style={({ pressed }) => [styles.chip, { borderColor: theme.border }, pressed && styles.pressed]}>
-                    <ThemedText type="small" style={styles.chipText}>
-                      {suggestion}
-                    </ThemedText>
-                  </Pressable>
-                ))}
-              </View>
             )}
           </ScrollView>
 
@@ -244,23 +233,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.two,
   },
-  suggestions: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.two,
-  },
-  chip: {
-    minHeight: 40,
-    justifyContent: 'center',
-    paddingHorizontal: Spacing.three + 2,
-    borderRadius: Radius.full,
-    borderWidth: 1,
-  },
-  chipText: {
-    fontWeight: 500,
-  },
-  pressed: {
-    opacity: 0.7,
+  // The start screen is centered in the free height.
+  emptyMessages: {
+    flexGrow: 1,
   },
   composer: {
     gap: Spacing.two,

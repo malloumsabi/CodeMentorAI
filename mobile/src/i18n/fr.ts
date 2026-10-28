@@ -157,6 +157,7 @@ export const fr = {
   },
   mentor: {
     title: 'Mentor IA',
+    emptyTitle: 'Comment je peux t’aider ?',
     author: 'Mentor',
     about: (lesson: string, course: string) => `À propos de : ${lesson} · ${course}`,
     welcome:

@@ -153,6 +153,7 @@ export const en: Dictionary = {
   },
   mentor: {
     title: 'AI Mentor',
+    emptyTitle: 'How can I help?',
     author: 'Mentor',
     about: (lesson: string, course: string) => `About: ${lesson} · ${course}`,
     welcome: 'Hi! I’m your mentor. Ask me a question about your code or a lesson, and I’ll explain it step by step.',

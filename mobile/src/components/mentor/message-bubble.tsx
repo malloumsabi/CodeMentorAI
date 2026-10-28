@@ -1,7 +1,9 @@
 import { StyleSheet, View } from 'react-native';
 
 import { CodeBlock } from '@/components/lesson/code-block';
+import { RichText } from '@/components/mentor/rich-text';
 import { ThemedText } from '@/components/themed-text';
+import { Icon } from '@/components/ui/icon';
 import { Label } from '@/components/ui/label';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -45,14 +47,17 @@ export function MessageBubble({ message }: { message: MentorMessage }) {
 
   return (
     <View style={styles.reply}>
-      <Label themeColor="primary">{t.mentor.author}</Label>
+      <View style={styles.author}>
+        <View style={[styles.avatar, { backgroundColor: theme.primarySoft, borderColor: theme.primaryBorder }]}>
+          <Icon name="code" size={12} color="primary" />
+        </View>
+        <Label themeColor="primary">{t.mentor.author}</Label>
+      </View>
       {splitCode(message.content).map((segment, index) =>
         segment.type === 'code' ? (
           <CodeBlock key={index} code={segment.value} language={segment.language} />
         ) : (
-          <ThemedText key={index} selectable style={styles.replyText}>
-            {segment.value}
-          </ThemedText>
+          <RichText key={index} text={segment.value} />
         )
       )}
     </View>
@@ -75,8 +80,17 @@ const styles = StyleSheet.create({
   reply: {
     gap: Spacing.two + 2,
   },
-  replyText: {
-    fontSize: 15,
-    lineHeight: 23,
+  author: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+  },
+  avatar: {
+    width: 22,
+    height: 22,
+    borderRadius: Radius.small - 2,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
