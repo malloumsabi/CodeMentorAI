@@ -10,6 +10,7 @@ import { Platform } from 'react-native';
 /**
  * CodeMentor AI palette. Every key must exist in both `light` and `dark`.
  * - primary: main actions (buttons, active tab, progress). `onPrimary` is the text drawn on top of it.
+ *   `primarySoft` / `primaryBorder`: tinted surface for the one card that should stand out.
  * - accent: code and AI-related highlights.
  * - success / warning / error: feedback (correct answer, hint, mistake).
  */
@@ -23,6 +24,8 @@ export const Colors = {
     border: '#E4E7EC',
     primary: '#4F46E5',
     onPrimary: '#FFFFFF',
+    primarySoft: '#EEF0FE',
+    primaryBorder: '#C7CCFA',
     accent: '#0E7490',
     success: '#15803D',
     warning: '#B45309',
@@ -37,6 +40,8 @@ export const Colors = {
     border: '#1E2633',
     primary: '#818CF8',
     onPrimary: '#0B0F17',
+    primarySoft: '#151A33',
+    primaryBorder: '#2B3366',
     accent: '#22D3EE',
     success: '#4ADE80',
     warning: '#FBBF24',

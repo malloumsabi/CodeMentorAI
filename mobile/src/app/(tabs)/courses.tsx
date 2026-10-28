@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 
 import { CourseCard } from '@/components/home/course-card';
-import { CourseRow } from '@/components/home/course-row';
+import { CourseList } from '@/components/home/course-list';
 import { Screen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
 import { Label } from '@/components/ui/label';
@@ -62,9 +62,7 @@ export default function CoursesScreen() {
         ) : (
           <View>
             <Label style={styles.listLabel}>{t.courses.results(results.length)}</Label>
-            {results.map((course) => (
-              <CourseRow key={course.id} course={course} showProgress={course.lessonsCompleted > 0} />
-            ))}
+            <CourseList courses={results} showProgress />
           </View>
         )}
       </Screen>
@@ -101,9 +99,7 @@ export default function CoursesScreen() {
       {notStarted.length > 0 && (
         <View>
           <Label style={styles.listLabel}>{t.courses.toDiscover}</Label>
-          {notStarted.map((course) => (
-            <CourseRow key={course.id} course={course} />
-          ))}
+          <CourseList courses={notStarted} />
         </View>
       )}
     </Screen>

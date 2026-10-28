@@ -43,6 +43,7 @@ export const fr = {
     edit: 'Modifier le profil',
     lessonsDone: 'Leçons terminées',
     coursesDone: 'Parcours terminés',
+    overallProgress: 'Progression globale',
     settings: 'Réglages',
     language: 'Langue',
     appearance: 'Apparence',

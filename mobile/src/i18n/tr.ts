@@ -40,6 +40,7 @@ export const tr: Dictionary = {
     edit: 'Profili düzenle',
     lessonsDone: 'Tamamlanan dersler',
     coursesDone: 'Tamamlanan kurslar',
+    overallProgress: 'Genel ilerleme',
     settings: 'Ayarlar',
     language: 'Dil',
     appearance: 'Görünüm',

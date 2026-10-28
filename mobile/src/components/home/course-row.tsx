@@ -14,10 +14,12 @@ type CourseRowProps = {
   course: Course;
   /** Shows a progress bar and counter instead of the level line. */
   showProgress?: boolean;
+  /** Draws a hairline above the row, to split it from the previous one. */
+  divider?: boolean;
 };
 
-/** Compact list row for a course, separated from the previous one by a hairline. */
-export function CourseRow({ course, showProgress = false }: CourseRowProps) {
+/** Compact list row for a course; meant to be grouped in a `CourseList`. */
+export function CourseRow({ course, showProgress = false, divider = false }: CourseRowProps) {
   const theme = useTheme();
   const { t } = useI18n();
   const level = t.levels[course.level];
@@ -28,32 +30,36 @@ export function CourseRow({ course, showProgress = false }: CourseRowProps) {
       role="button"
       accessibilityLabel={t.courseCard.accessibilityLabel(course.title, level)}
       onPress={() => router.push({ pathname: '/course/[courseId]', params: { courseId: course.id } })}
-      style={({ pressed }) => [styles.row, { borderTopColor: theme.border }, pressed && styles.pressed]}>
+      style={({ pressed }) => [
+        styles.row,
+        divider && { borderTopWidth: 1, borderTopColor: theme.border },
+        pressed && { backgroundColor: theme.backgroundElement },
+      ]}>
       <CourseBadge label={course.badge} />
       <View style={styles.body}>
-        <View style={styles.titleLine}>
-          <ThemedText type="smallBold" style={styles.title} numberOfLines={1}>
-            {course.title}
-          </ThemedText>
-          {showProgress && (
+        <ThemedText type="smallBold" style={styles.title} numberOfLines={1}>
+          {course.title}
+        </ThemedText>
+        {showProgress ? (
+          <View style={styles.progress}>
+            <View style={styles.bar}>
+              <ProgressBar
+                progress={getCourseProgress(course)}
+                color={isFinished ? 'success' : 'primary'}
+                accessibilityLabel={t.common.progressOf(course.title)}
+              />
+            </View>
             <ThemedText type="small" themeColor="textSecondary" style={styles.count}>
               {course.lessonsCompleted}/{course.lessonsTotal}
             </ThemedText>
-          )}
-        </View>
-        {showProgress ? (
-          <ProgressBar
-            progress={getCourseProgress(course)}
-            color={isFinished ? 'success' : 'primary'}
-            accessibilityLabel={t.common.progressOf(course.title)}
-          />
+          </View>
         ) : (
-          <ThemedText type="small" themeColor="textSecondary">
+          <ThemedText type="small" themeColor="textSecondary" numberOfLines={1}>
             {t.course.summary(level, course.lessonsTotal)}
           </ThemedText>
         )}
       </View>
-      {!showProgress && <Icon name="chevronRight" size={16} color="textSecondary" />}
+      <Icon name="chevronRight" size={14} color="textSecondary" />
     </Pressable>
   );
 }
@@ -64,27 +70,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.three,
     minHeight: 64,
-    paddingVertical: Spacing.two + 2,
-    borderTopWidth: 1,
-  },
-  pressed: {
-    opacity: 0.7,
+    marginHorizontal: -Spacing.three,
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.three - 4,
   },
   body: {
     flex: 1,
-    gap: Spacing.two - 2,
-  },
-  titleLine: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: Spacing.two,
+    gap: Spacing.one,
   },
   title: {
-    flex: 1,
     fontSize: 15,
+  },
+  progress: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two + 2,
+  },
+  bar: {
+    flex: 1,
   },
   count: {
     fontFamily: Fonts.mono,
     fontSize: 12,
+    minWidth: 36,
+    textAlign: 'right',
   },
 });

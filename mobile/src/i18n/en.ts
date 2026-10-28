@@ -40,6 +40,7 @@ export const en: Dictionary = {
     edit: 'Edit profile',
     lessonsDone: 'Lessons completed',
     coursesDone: 'Courses completed',
+    overallProgress: 'Overall progress',
     settings: 'Settings',
     language: 'Language',
     appearance: 'Appearance',

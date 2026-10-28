@@ -1,18 +1,21 @@
 import { Link, router } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { CourseRow } from '@/components/home/course-row';
+import { CourseBadge } from '@/components/home/course-badge';
+import { CourseList } from '@/components/home/course-list';
 import { Avatar } from '@/components/profile/avatar';
 import { Screen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { ProgressBar } from '@/components/ui/progress-bar';
+import { StatStrip } from '@/components/ui/stat-strip';
+import { WeekTrack } from '@/components/ui/week-track';
 import { Fonts, Spacing } from '@/constants/theme';
 import { getCourseProgress, getCurrentCourse, getGroupForYear, getNextLesson } from '@/data/courses';
 import { useProfile } from '@/hooks/use-profile';
 import { useCourses } from '@/hooks/use-progress';
+import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 
 export default function HomeScreen() {
@@ -21,9 +24,17 @@ export default function HomeScreen() {
   const nextLesson = currentCourse && getNextLesson(currentCourse);
   const { t } = useI18n();
   const { profile } = useProfile();
+  const theme = useTheme();
 
   const lessonsDone = courses.reduce((total, course) => total + course.lessonsCompleted, 0);
   const coursesDone = courses.filter((course) => course.lessonsCompleted === course.lessonsTotal).length;
+  const lessonsTotal = courses.reduce((total, course) => total + course.lessonsTotal, 0);
+  const overallPercent = lessonsTotal > 0 ? Math.round((lessonsDone / lessonsTotal) * 100) : 0;
+  const stats = [
+    { value: String(lessonsDone), label: t.profile.lessonsDone },
+    { value: String(coursesDone), label: t.profile.coursesDone },
+    { value: `${overallPercent} %`, label: t.profile.overallProgress },
+  ];
   // Only the started courses; before any lesson, the courses of the student's year as suggestions.
   const startedCourses = courses.filter((course) => course.lessonsCompleted > 0);
   const suggestedGroup = (profile && getGroupForYear(profile.year)) ?? 'basics';
@@ -48,11 +59,21 @@ export default function HomeScreen() {
         )
       }>
       {currentCourse && nextLesson ? (
-        <Card style={styles.resume}>
+        <Card style={[styles.resume, { backgroundColor: theme.primarySoft, borderColor: theme.primaryBorder }]}>
           <View style={styles.resumeHeader}>
-            <Label themeColor="primary">{t.home.resumeLabel(currentCourse.title)}</Label>
-            <ThemedText type="small" themeColor="textSecondary" style={styles.mono}>
-              {nextLesson.week ?? currentCourse.lessons.indexOf(nextLesson) + 1}/{currentCourse.lessonsTotal}
+            <CourseBadge label={currentCourse.badge} />
+            <View style={styles.resumeHeaderText}>
+              <Label themeColor="primary" numberOfLines={1}>
+                {t.home.resumeLabel(currentCourse.title)}
+              </Label>
+              <ThemedText type="small" themeColor="textSecondary" style={styles.mono}>
+                {nextLesson.week
+                  ? t.lesson.weekCounter(nextLesson.week, currentCourse.lessonsTotal)
+                  : t.lesson.counter(currentCourse.lessons.indexOf(nextLesson) + 1, currentCourse.lessonsTotal)}
+              </ThemedText>
+            </View>
+            <ThemedText type="stat" themeColor="primary" style={styles.resumePercent}>
+              {Math.round(getCourseProgress(currentCourse) * 100)} %
             </ThemedText>
           </View>
           <View style={styles.resumeText}>
@@ -63,8 +84,9 @@ export default function HomeScreen() {
               </ThemedText>
             )}
           </View>
-          <ProgressBar
-            progress={getCourseProgress(currentCourse)}
+          <WeekTrack
+            course={currentCourse}
+            currentLessonId={nextLesson.id}
             accessibilityLabel={t.common.progressOf(currentCourse.title)}
           />
           <Button
@@ -89,20 +111,7 @@ export default function HomeScreen() {
         </Card>
       )}
 
-      <View style={styles.stats}>
-        <Card variant="outline" style={styles.stat}>
-          <ThemedText type="stat">{lessonsDone}</ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            {t.profile.lessonsDone}
-          </ThemedText>
-        </Card>
-        <Card variant="outline" style={styles.stat}>
-          <ThemedText type="stat">{coursesDone}</ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            {t.profile.coursesDone}
-          </ThemedText>
-        </Card>
-      </View>
+      <StatStrip stats={stats} />
 
       <View>
         <View style={styles.sectionHeader}>
@@ -113,9 +122,7 @@ export default function HomeScreen() {
             </ThemedText>
           </Link>
         </View>
-        {listedCourses.map((course) => (
-          <CourseRow key={course.id} course={course} showProgress={startedCourses.length > 0} />
-        ))}
+        <CourseList courses={listedCourses} showProgress />
       </View>
     </Screen>
   );
@@ -129,8 +136,11 @@ const styles = StyleSheet.create({
   resumeHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: Spacing.two,
+    gap: Spacing.three,
+  },
+  resumeHeaderText: {
+    flex: 1,
+    gap: Spacing.half,
   },
   resumeText: {
     gap: Spacing.one + 2,
@@ -144,13 +154,9 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.mono,
     fontSize: 12,
   },
-  stats: {
-    flexDirection: 'row',
-    gap: Spacing.three,
-  },
-  stat: {
-    flex: 1,
-    gap: Spacing.half,
+  resumePercent: {
+    fontSize: 20,
+    lineHeight: 26,
   },
   sectionHeader: {
     flexDirection: 'row',
